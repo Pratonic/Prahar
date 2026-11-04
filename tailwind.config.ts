@@ -19,8 +19,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
-        sans: ['Inter', 'Manrope', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-cormorant)', 'Playfair Display', 'Georgia', 'serif'],
+        sans: ['var(--font-inter)', 'Manrope', 'system-ui', 'sans-serif'],
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',

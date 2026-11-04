@@ -1,8 +1,24 @@
 import type { Metadata } from 'next';
+import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import CartDrawer from '@/components/CartDrawer';
 import Footer from '@/components/Footer';
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'PRAHAR (प्रहर) — The Fragrance You Can Hear',
@@ -36,8 +52,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="bg-[#F5EBDD] text-[#24160F] antialiased selection:bg-[#B38A45]/30 selection:text-[#24160F] flex flex-col min-h-screen">
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${inter.variable} scroll-smooth`}
+    >
+      <body className="bg-[#F5EBDD] text-[#24160F] antialiased selection:bg-[#B38A45]/30 selection:text-[#24160F] flex flex-col min-h-screen font-sans">
         <Navbar />
         <CartDrawer />
         <main className="flex-grow">{children}</main>

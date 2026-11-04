@@ -7,6 +7,7 @@ import { Sparkles, ArrowRight, RotateCcw, Check, ShoppingBag, Volume2, Compass }
 import { quizQuestions, getRecommendation, type QuizAnswer } from '@/lib/recommendations';
 import { products, formatPrice } from '@/data/products';
 import { useCartStore } from '@/lib/cart';
+import { useAudioStore } from '@/lib/audio';
 
 export default function DiscoveryQuiz() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -15,6 +16,9 @@ export default function DiscoveryQuiz() {
   const [isAdded, setIsAdded] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
+  const playRaga = useAudioStore((s) => s.playRaga);
+  const isAudioPlaying = useAudioStore((s) => s.isPlaying);
+  const currentAudioRagaId = useAudioStore((s) => s.currentRagaId);
 
   const currentQuestion = quizQuestions[currentStep];
 
@@ -254,13 +258,15 @@ export default function DiscoveryQuiz() {
                         )}
                       </button>
 
-                      <Link
-                        href={`/experience/${resultRaga.id}`}
+                      <button
+                        onClick={() => playRaga(resultRaga.id)}
                         className="py-3 px-5 rounded-full border border-white/20 hover:border-[#D6B77C] hover:text-[#D6B77C] text-white text-xs uppercase tracking-[0.15em] font-semibold flex items-center justify-center gap-2 transition-colors"
                       >
                         <Volume2 className="w-4 h-4 text-[#D6B77C]" />
-                        <span>Hear Soundtrack</span>
-                      </Link>
+                        <span>
+                          {isAudioPlaying && currentAudioRagaId === resultRaga.id ? 'Pause Music' : 'Play Soundtrack'}
+                        </span>
+                      </button>
                     </div>
                   </div>
                 </div>

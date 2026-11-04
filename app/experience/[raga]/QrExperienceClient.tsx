@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -20,120 +21,36 @@ import {
 import { type Raga, ragas } from '@/data/ragas';
 import { products, formatPrice } from '@/data/products';
 import { useCartStore } from '@/lib/cart';
+import { useAudioStore } from '@/lib/audio';
 
 interface QrExperienceClientProps {
   raga: Raga;
 }
 
-const ragaPitches: Record<string, number[]> = {
-  bhairav: [130.81, 138.59, 164.81, 196.0, 207.65],
-  sarang: [146.83, 164.81, 196.0, 220.0, 261.63],
-  yaman: [130.81, 164.81, 185.0, 196.0, 246.94],
-  darbari: [110.0, 130.81, 146.83, 164.81, 196.0],
-  malhar: [146.83, 174.61, 196.0, 220.0, 261.63],
-};
-
 export default function QrExperienceClient({ raga }: QrExperienceClientProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(0.7);
-  const [isMuted, setIsMuted] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-
-  const duration = 240; // 4 minutes
   const addItem = useCartStore((s) => s.addItem);
+
+  const currentRagaId = useAudioStore((s) => s.currentRagaId);
+  const isAudioPlaying = useAudioStore((s) => s.isPlaying);
+  const playRaga = useAudioStore((s) => s.playRaga);
+  const togglePlay = useAudioStore((s) => s.togglePlay);
+  const currentTime = useAudioStore((s) => s.currentTime);
+  const duration = useAudioStore((s) => s.duration);
+
+  const isCurrentPlaying = isAudioPlaying && currentRagaId === raga.id;
 
   const product = products.find(
     (p) => p.ragaId === raga.id && p.category === 'perfume'
   );
 
-  // Audio synthesis
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const oscillatorsRef = useRef<OscillatorNode[]>([]);
-  const gainNodeRef = useRef<GainNode | null>(null);
-
-  const stopAudio = useCallback(() => {
-    oscillatorsRef.current.forEach((osc) => {
-      try {
-        osc.stop();
-        osc.disconnect();
-      } catch {}
-    });
-    oscillatorsRef.current = [];
-  }, []);
-
-  const startAudio = useCallback(() => {
-    stopAudio();
-
-    try {
-      const AudioContextClass =
-        window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) return;
-
-      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
-        audioCtxRef.current = new AudioContextClass();
-      }
-
-      if (audioCtxRef.current.state === 'suspended') {
-        audioCtxRef.current.resume();
-      }
-
-      const ctx = audioCtxRef.current;
-      const masterGain = ctx.createGain();
-      const currentVol = isMuted ? 0 : volume * 0.15;
-      masterGain.gain.setValueAtTime(currentVol, ctx.currentTime);
-      masterGain.connect(ctx.destination);
-      gainNodeRef.current = masterGain;
-
-      const pitches = ragaPitches[raga.id] || [130.81, 196.0, 261.63];
-
-      pitches.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const oscGain = ctx.createGain();
-
-        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        osc.detune.setValueAtTime((idx - 1) * 3, ctx.currentTime);
-        oscGain.gain.setValueAtTime(1 / pitches.length, ctx.currentTime);
-
-        osc.connect(oscGain);
-        oscGain.connect(masterGain);
-        osc.start();
-        oscillatorsRef.current.push(osc);
-      });
-    } catch {}
-  }, [raga.id, isMuted, volume, stopAudio]);
-
-  const togglePlay = () => {
-    if (isPlaying) {
-      stopAudio();
-      setIsPlaying(false);
+  const handleAudioToggle = () => {
+    if (isAudioPlaying && currentRagaId === raga.id) {
+      togglePlay();
     } else {
-      startAudio();
-      setIsPlaying(true);
+      playRaga(raga.id);
     }
   };
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => (prev >= duration ? 0 : prev + 1));
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isPlaying, duration]);
-
-  useEffect(() => {
-    return () => {
-      stopAudio();
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-        audioCtxRef.current.close().catch(() => {});
-      }
-    };
-  }, [stopAudio]);
 
   const handleAddToCart = () => {
     if (product) {
@@ -158,12 +75,6 @@ export default function QrExperienceClient({ raga }: QrExperienceClientProps) {
 
   return (
     <div className="min-h-screen bg-[#17131D] text-white pt-24 pb-28 relative overflow-hidden">
-      {/* Raga atmospheric aura */}
-      <div
-        className="pointer-events-none absolute top-10 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full blur-[180px] opacity-25"
-        style={{ backgroundColor: raga.colors.primary }}
-      />
-
       <div className="relative mx-auto max-w-5xl px-5 sm:px-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between mb-8">
@@ -188,8 +99,8 @@ export default function QrExperienceClient({ raga }: QrExperienceClientProps) {
             {/* Spinning Master Disc Visual */}
             <div className="relative w-40 h-40 sm:w-52 sm:h-52 rounded-full bg-stone-900 border-4 border-[#D6B77C]/40 p-2 flex items-center justify-center shrink-0 shadow-2xl">
               <motion.div
-                animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
-                transition={isPlaying ? { repeat: Infinity, duration: 8, ease: 'linear' } : {}}
+                animate={isCurrentPlaying ? { rotate: 360 } : { rotate: 0 }}
+                transition={isCurrentPlaying ? { repeat: Infinity, duration: 8, ease: 'linear' } : {}}
                 className="w-full h-full rounded-full border border-dashed border-white/20 flex flex-col items-center justify-center"
                 style={{ backgroundColor: raga.colors.primary + '33' }}
               >
@@ -230,18 +141,18 @@ export default function QrExperienceClient({ raga }: QrExperienceClientProps) {
               {/* Player Controls */}
               <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center gap-6">
                 <button
-                  onClick={togglePlay}
+                  onClick={handleAudioToggle}
                   className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#B38A45] to-[#D6B77C] text-[#17131D] font-sans text-xs uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-3 shadow-xl hover:scale-105 active:scale-95 transition-transform"
                 >
-                  {isPlaying ? (
+                  {isCurrentPlaying ? (
                     <>
                       <Pause className="w-5 h-5 fill-current" />
-                      <span>Pause Raga Drone</span>
+                      <span>Pause Raga Track</span>
                     </>
                   ) : (
                     <>
                       <Play className="w-5 h-5 fill-current ml-0.5" />
-                      <span>Stream Sacred Raga</span>
+                      <span>Stream {raga.name} Audio</span>
                     </>
                   )}
                 </button>
@@ -251,15 +162,23 @@ export default function QrExperienceClient({ raga }: QrExperienceClientProps) {
                   {[...Array(24)].map((_, i) => (
                     <motion.div
                       key={i}
-                      animate={isPlaying ? { height: ['4px', `${6 + (i * 7) % 22}px`, '4px'] } : { height: '4px' }}
-                      transition={isPlaying ? { repeat: Infinity, duration: 0.8 + (i % 4) * 0.2, ease: 'easeInOut' } : {}}
+                      animate={
+                        isCurrentPlaying
+                          ? { height: ['4px', `${6 + ((i * 7 + currentTime * 2) % 22)}px`, '4px'] }
+                          : { height: '4px' }
+                      }
+                      transition={
+                        isCurrentPlaying
+                          ? { repeat: Infinity, duration: 0.8 + (i % 4) * 0.2, ease: 'easeInOut' }
+                          : {}
+                      }
                       className="w-1 bg-[#D6B77C] rounded-full"
                     />
                   ))}
                 </div>
 
                 <div className="text-xs font-mono text-white/50">
-                  {formatTime(currentTime)} / {formatTime(duration)}
+                  {formatTime(currentTime)} / {formatTime(duration || 45)}
                 </div>
               </div>
             </div>

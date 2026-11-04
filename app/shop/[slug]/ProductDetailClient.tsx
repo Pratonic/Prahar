@@ -18,6 +18,7 @@ import {
 import { type Product, formatPrice, products } from '@/data/products';
 import { getRagaById } from '@/data/ragas';
 import { useCartStore } from '@/lib/cart';
+import { useAudioStore } from '@/lib/audio';
 import ProductCard from '@/components/ProductCard';
 
 interface ProductDetailClientProps {
@@ -30,6 +31,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
+  const playRaga = useAudioStore((s) => s.playRaga);
+  const isAudioPlaying = useAudioStore((s) => s.isPlaying);
+  const currentAudioRagaId = useAudioStore((s) => s.currentRagaId);
 
   const raga = getRagaById(product.ragaId);
 
@@ -267,13 +271,23 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
             {/* Raga Link if applicable */}
             {raga && (
-              <div className="mt-6">
-                <Link
-                  href={`/experience/${raga.id}`}
-                  className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#B96A2D] hover:underline"
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => playRaga(raga.id)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EADBC5] hover:bg-[#B38A45] hover:text-white text-xs font-mono uppercase tracking-wider text-[#24160F] transition-all border border-[#B38A45]/30"
                 >
                   <Volume2 className="w-4 h-4 text-[#B38A45]" />
-                  <span>Preview Raga {raga.name} Musical Experience →</span>
+                  <span>
+                    {isAudioPlaying && currentAudioRagaId === raga.id
+                      ? `Pause Raga ${raga.name}`
+                      : `Play Raga ${raga.name} Audio (${raga.time})`}
+                  </span>
+                </button>
+                <Link
+                  href={`/experience/${raga.id}`}
+                  className="text-xs font-mono uppercase tracking-wider text-[#B96A2D] hover:underline"
+                >
+                  Dedicated QR Portal →
                 </Link>
               </div>
             )}

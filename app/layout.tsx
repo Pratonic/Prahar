@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import CartDrawer from '@/components/CartDrawer';
 import Footer from '@/components/Footer';
+import GlobalAudioBar from '@/components/GlobalAudioBar';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export const metadata: Metadata = {
     'Malhar',
     'niche perfume',
     'Kannauj',
+    'A.R. Rahman',
   ],
   authors: [{ name: 'PRAHAR Luxury Parfums' }],
   openGraph: {
@@ -56,11 +58,12 @@ export default function RootLayout({
       lang="en"
       className={`${cormorant.variable} ${inter.variable} scroll-smooth`}
     >
-      <body className="bg-[#F5EBDD] text-[#24160F] antialiased selection:bg-[#B38A45]/30 selection:text-[#24160F] flex flex-col min-h-screen font-sans">
+      <body className="bg-[#F5EBDD] text-[#24160F] antialiased selection:bg-[#B38A45]/30 selection:text-[#24160F] flex flex-col min-h-screen font-sans pb-16">
         <Navbar />
         <CartDrawer />
         <main className="flex-grow">{children}</main>
         <Footer />
+        <GlobalAudioBar />
       </body>
     </html>
   );

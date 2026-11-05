@@ -52,12 +52,12 @@ export default function CampaignSection() {
 
             {/* 7-Day Teaser Timeline */}
             <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/10 mb-8">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <span className="text-xs font-mono uppercase tracking-widest text-[#D6B77C]">
-                  TEASER • 7 DAYS • SOUND FIRST, NO PRODUCT
+                  THE 7-DAY PROLOGUE • SOUND BEFORE SCENT
                 </span>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-white/10 text-white/60">
-                  AIDA: ATTENTION • INTEREST
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-white/10 text-[#D6B77C] self-start sm:self-auto">
+                  IMMERSIVE AUDIO PREVIEW
                 </span>
               </div>
 

@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
+import { Search, User, ShoppingBag, Menu, X, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/lib/cart';
+import { useAudioStore } from '@/lib/audio';
+import { ragas } from '@/data/ragas';
 
 const navLinks = [
   { label: 'Discover', href: '/discover' },
@@ -22,6 +24,13 @@ export default function Navbar({ transparent = true }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const toggleCart = useCartStore((s) => s.toggleCart);
   const itemCount = useCartStore((s) => s.getItemCount());
+
+  const isAudioPlaying = useAudioStore((s) => s.isPlaying);
+  const currentRagaId = useAudioStore((s) => s.currentRagaId);
+  const togglePlay = useAudioStore((s) => s.togglePlay);
+  const playRaga = useAudioStore((s) => s.playRaga);
+
+  const activeRaga = ragas.find((r) => r.id === currentRagaId) || ragas[0];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -92,7 +101,40 @@ export default function Navbar({ transparent = true }: NavbarProps) {
           </ul>
 
           {/* ── Right Icons ──────────────────────────────────────── */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4 sm:gap-5">
+            {/* Live Acoustic Soundwave Pill */}
+            <button
+              onClick={() => {
+                if (isAudioPlaying) {
+                  togglePlay();
+                } else {
+                  playRaga(currentRagaId || 'bhairav');
+                }
+              }}
+              aria-label={isAudioPlaying ? 'Pause Raga Soundtrack' : 'Play Raga Soundtrack'}
+              className={`group flex items-center gap-2 rounded-full px-3 py-1.5 transition-all text-xs font-mono uppercase tracking-wider ${
+                isAudioPlaying
+                  ? 'border border-[#B38A45] bg-[#B38A45]/20 text-[#B96A2D] shadow-xs'
+                  : showSolid
+                  ? 'border border-[#24160F]/20 text-[#24160F]/70 hover:border-[#B38A45] hover:text-[#B96A2D]'
+                  : 'border border-white/25 text-white/80 hover:border-[#D6B77C] hover:text-[#D6B77C]'
+              }`}
+            >
+              {isAudioPlaying ? (
+                <div className="flex items-end gap-[2px] h-3 w-3 pb-0.5">
+                  <span className="w-[2px] bg-[#B38A45] h-full animate-pulse" />
+                  <span className="w-[2px] bg-[#B38A45] h-2/3 animate-pulse delay-75" />
+                  <span className="w-[2px] bg-[#B38A45] h-4/5 animate-pulse delay-150" />
+                  <span className="w-[2px] bg-[#B38A45] h-1/2 animate-pulse delay-200" />
+                </div>
+              ) : (
+                <Volume2 className="h-3.5 w-3.5 text-[#B38A45]" />
+              )}
+              <span className="hidden sm:inline text-[11px] font-medium tracking-widest">
+                {isAudioPlaying ? `${activeRaga.name} • SOUND` : 'RAGA SOUND'}
+              </span>
+            </button>
+
             <button
               aria-label="Search"
               className={`hidden transition-colors duration-400 lg:block ${
@@ -237,6 +279,36 @@ export default function Navbar({ transparent = true }: NavbarProps) {
                   </Link>
                 </motion.div>
               ))}
+
+              {/* Mobile Sound Control */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mt-6 flex items-center gap-3 px-4 py-2 rounded-full border border-[#D6B77C]/30 bg-white/5"
+              >
+                <button
+                  onClick={() => {
+                    if (isAudioPlaying) {
+                      togglePlay();
+                    } else {
+                      playRaga(currentRagaId || 'bhairav');
+                    }
+                  }}
+                  className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#D6B77C]"
+                >
+                  {isAudioPlaying ? (
+                    <>
+                      <Pause className="w-3.5 h-3.5 text-[#D6B77C]" />
+                      <span>Sound: {activeRaga.name} (Pause)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3.5 h-3.5 text-[#D6B77C]" />
+                      <span>Play Raga: {activeRaga.name}</span>
+                    </>
+                  )}
+                </button>
+              </motion.div>
 
               {/* Mobile utility links */}
               <motion.div

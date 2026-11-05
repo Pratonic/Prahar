@@ -1,19 +1,18 @@
-import Hero from '@/components/Hero';
+import Hero3DExperience from '@/components/Hero3DExperience';
 import StorySection from '@/components/StorySection';
 import RagaExplorer from '@/components/RagaExplorer';
 import MusicPlayer from '@/components/MusicPlayer';
 import HowItWorks from '@/components/HowItWorks';
 import ProductGrid from '@/components/ProductGrid';
 import DiscoveryQuiz from '@/components/DiscoveryQuiz';
-import TechnologySection from '@/components/TechnologySection';
 import CampaignSection from '@/components/CampaignSection';
 import BrandPhilosophy from '@/components/BrandPhilosophy';
 
 export default function HomePage() {
   return (
     <>
-      {/* 01. The Cinematic Opening */}
-      <Hero />
+      {/* 01. The 3D Interactive Perfume Bottle Experience & Hero */}
+      <Hero3DExperience />
 
       {/* 02. Editorial Storytelling */}
       <StorySection />
@@ -21,7 +20,7 @@ export default function HomePage() {
       {/* 03. The Five Ragas Interactive Explorer */}
       <RagaExplorer />
 
-      {/* 04. Digital Music Experience with Web Audio Raga Drone Synthesis */}
+      {/* 04. Digital Music Experience with Real Classical Raga Playback */}
       <MusicPlayer />
 
       {/* 05. How It Works: Four Step Ritual */}
@@ -33,13 +32,10 @@ export default function HomePage() {
       {/* 07. Interactive Personalized Raga Quiz */}
       <DiscoveryQuiz />
 
-      {/* 08. The Technology & Connected Business Model */}
-      <TechnologySection />
-
-      {/* 09. Cultural Launch Campaign #ListenToTheScent */}
+      {/* 08. Cultural Launch Campaign #ListenToTheScent */}
       <CampaignSection />
 
-      {/* 10. Brand Philosophy, Three Pillars & Future Horizon */}
+      {/* 09. Brand Philosophy, Three Pillars & Future Horizon */}
       <BrandPhilosophy />
     </>
   );

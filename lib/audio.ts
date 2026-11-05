@@ -75,7 +75,7 @@ export const useAudioStore = create<AudioState>((set, get) => {
       }
 
       if (audio) {
-        audio.src = ragaAudioFiles[ragaId] || '/audio/bhairav.wav';
+        audio.src = ragaAudioFiles[ragaId] || '/audio/bhairav.mp3';
         audio.volume = current.isMuted ? 0 : current.volume;
         audio.play().then(() => {
           set({ currentRagaId: ragaId, isPlaying: true, currentTime: 0 });
@@ -98,8 +98,8 @@ export const useAudioStore = create<AudioState>((set, get) => {
         audio.pause();
         set({ isPlaying: false });
       } else {
-        if (!audio.src || !audio.src.includes('.wav')) {
-          audio.src = ragaAudioFiles[currentRagaId] || '/audio/bhairav.wav';
+        if (!audio.src || !audio.src.includes('.mp3')) {
+          audio.src = ragaAudioFiles[currentRagaId] || '/audio/bhairav.mp3';
         }
         audio.volume = isMuted ? 0 : volume;
         audio.play().then(() => {

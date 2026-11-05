@@ -30,8 +30,8 @@ export default function GlobalAudioBar() {
   };
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 bg-[#17131D]/95 backdrop-blur-xl border-t border-[#B38A45]/30 shadow-2xl text-white">
-      {/* Top micro progress line */}
+    <div className="fixed bottom-0 inset-x-0 z-40 bg-[#0E1017]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl text-white">
+      {/* Top micro progress line with Armory orange slider */}
       <div
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
@@ -41,7 +41,7 @@ export default function GlobalAudioBar() {
         className="h-1 w-full bg-white/10 cursor-pointer relative group"
       >
         <div
-          className="h-full bg-gradient-to-r from-[#B38A45] to-[#D6B77C] transition-all"
+          className="h-full bg-[#ff4d17] transition-all"
           style={{ width: `${((currentTime / (duration || 45)) * 100).toFixed(1)}%` }}
         />
       </div>
@@ -51,7 +51,7 @@ export default function GlobalAudioBar() {
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <button
             onClick={togglePlay}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-[#B38A45] to-[#D6B77C] text-[#17131D] flex items-center justify-center shrink-0 hover:scale-105 active:scale-95 transition-all shadow-md"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white flex items-center justify-center shrink-0 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,77,23,0.35)] cursor-pointer"
             aria-label={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? (
@@ -63,21 +63,21 @@ export default function GlobalAudioBar() {
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#D6B77C]">
+              <span className="text-[10px] uppercase font-mono tracking-widest text-[#ff4d17]">
                 {currentRaga.time}
               </span>
               {isPlaying && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ff4d17] animate-pulse" />
               )}
             </div>
             <div className="flex items-baseline gap-2 truncate">
               <span className="font-serif text-base sm:text-lg text-white font-medium">
                 Raga {currentRaga.name}
               </span>
-              <span className="text-xs font-serif text-[#D6B77C] hidden sm:inline">
+              <span className="text-xs font-serif text-white/50 hidden sm:inline">
                 ({currentRaga.nameDevanagari})
               </span>
-              <span className="text-xs text-white/50 hidden md:inline font-sans truncate">
+              <span className="text-xs text-white/40 hidden md:inline font-mono truncate">
                 • {currentRaga.character}
               </span>
             </div>
@@ -88,96 +88,88 @@ export default function GlobalAudioBar() {
         <div className="hidden lg:flex items-center gap-3">
           <button
             onClick={prevTrack}
-            className="text-white/60 hover:text-white transition-colors"
+            className="text-white/40 hover:text-white transition-colors cursor-pointer"
             aria-label="Previous Raga"
           >
             <SkipBack className="w-4 h-4" />
           </button>
 
           {/* 16 Animated Waveform Bars */}
-          <div className="flex items-end gap-1 h-5 px-3 py-1 bg-black/40 rounded-full border border-white/5">
+          <div className="flex items-end gap-1 h-5 px-3 py-1 bg-white/5 rounded-full border border-white/10">
             {[...Array(16)].map((_, i) => (
               <motion.div
                 key={i}
+                className="w-1 bg-[#ff4d17] rounded-full"
                 animate={
                   isPlaying
                     ? {
-                        height: ['4px', `${6 + ((i * 5 + currentTime * 3) % 18)}px`, '4px'],
+                        height: [
+                          `${Math.max(3, (i * 7) % 18)}px`,
+                          `${Math.max(4, ((16 - i) * 8) % 20)}px`,
+                          `${Math.max(3, (i * 5) % 16)}px`,
+                        ],
                       }
-                    : { height: '4px' }
+                    : { height: '3px' }
                 }
                 transition={
                   isPlaying
                     ? {
                         repeat: Infinity,
-                        duration: 0.6 + (i % 4) * 0.15,
+                        duration: 0.5 + (i % 3) * 0.2,
                         ease: 'easeInOut',
                       }
-                    : {}
+                    : { duration: 0.3 }
                 }
-                className="w-1 rounded-full bg-[#D6B77C]"
               />
             ))}
           </div>
 
           <button
             onClick={nextTrack}
-            className="text-white/60 hover:text-white transition-colors"
+            className="text-white/40 hover:text-white transition-colors cursor-pointer"
             aria-label="Next Raga"
           >
             <SkipForward className="w-4 h-4" />
           </button>
 
-          <span className="text-[11px] font-mono text-white/50 min-w-16">
-            {formatTime(currentTime)} / {formatTime(duration)}
+          <span className="text-xs font-mono text-white/40 ml-2">
+            {formatTime(currentTime)} / {formatTime(duration || 45)}
           </span>
         </div>
 
         {/* Right: Quick Raga Selector & Volume */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          {/* Quick Raga Switcher buttons */}
-          <div className="hidden sm:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10">
-            {ragas.map((r) => {
-              const active = r.id === currentRagaId;
-              return (
-                <button
-                  key={r.id}
-                  onClick={() => playRaga(r.id)}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider transition-all ${
-                    active
-                      ? 'bg-[#B38A45] text-white font-semibold'
-                      : 'text-white/60 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {r.name}
-                </button>
-              );
-            })}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Quick Raga Switcher */}
+          <div className="hidden sm:flex items-center gap-1 font-mono text-[10px]">
+            {ragas.map((r) => (
+              <button
+                key={r.id}
+                onClick={() => playRaga(r.id)}
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
+                  currentRagaId === r.id
+                    ? 'bg-[#ff4d17] text-white font-bold'
+                    : 'text-white/40 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {r.name}
+              </button>
+            ))}
           </div>
 
-          {/* Volume */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMute}
-              className="text-white/60 hover:text-white transition-colors"
-              aria-label={isMuted ? 'Unmute' : 'Mute'}
-            >
-              {isMuted || volume === 0 ? (
-                <VolumeX className="w-4 h-4" />
-              ) : (
-                <Volume2 className="w-4 h-4" />
-              )}
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={isMuted ? 0 : volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="w-16 sm:w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#D6B77C] hidden sm:inline-block"
-            />
-          </div>
+          <div className="h-4 w-px bg-white/10 hidden sm:block" />
+
+          {/* Volume toggle */}
+          <button
+            onClick={toggleMute}
+            className="text-white/60 hover:text-white transition-colors cursor-pointer"
+            aria-label={isMuted ? 'Unmute' : 'Mute'}
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX className="w-4 h-4 text-[#ff4d17]" />
+            ) : (
+              <Volume2 className="w-4 h-4" />
+            )}
+          </button>
         </div>
       </div>
     </div>

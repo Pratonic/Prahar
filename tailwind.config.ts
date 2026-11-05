@@ -8,6 +8,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        armory: {
+          orange: '#ff4d17',
+          dark: '#101010',
+          nearBlack: '#1d1d1d',
+          grey: '#646464',
+          light: '#ebebeb',
+        },
         prahar: {
           ivory: '#F5EBDD',
           parchment: '#EADBC5',
@@ -21,6 +28,7 @@ const config: Config = {
       fontFamily: {
         serif: ['var(--font-cormorant)', 'Playfair Display', 'Georgia', 'serif'],
         sans: ['var(--font-inter)', 'Manrope', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'monospace'],
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',

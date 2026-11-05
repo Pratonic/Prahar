@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Cormorant_Garamond, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import CartDrawer from '@/components/CartDrawer';
 import Footer from '@/components/Footer';
 import GlobalAudioBar from '@/components/GlobalAudioBar';
+import SmoothScroll from '@/components/SmoothScroll';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -18,6 +19,13 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -56,14 +64,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${inter.variable} scroll-smooth`}
+      className={`${cormorant.variable} ${inter.variable} ${jetbrainsMono.variable} scroll-smooth`}
     >
-      <body className="bg-[#F5EBDD] text-[#24160F] antialiased selection:bg-[#B38A45]/30 selection:text-[#24160F] flex flex-col min-h-screen font-sans pb-16">
-        <Navbar />
-        <CartDrawer />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-        <GlobalAudioBar />
+      <body className="bg-[#0B0C10] text-white antialiased selection:bg-[#ff4d17]/40 selection:text-white flex flex-col min-h-screen font-sans pb-16">
+        <SmoothScroll>
+          <Navbar />
+          <CartDrawer />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+          <GlobalAudioBar />
+        </SmoothScroll>
       </body>
     </html>
   );

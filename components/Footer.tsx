@@ -10,9 +10,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#17131D] text-white pt-20 pb-12 overflow-hidden border-t border-[#B38A45]/30">
+    <footer className="relative bg-[#0B0C10] text-white pt-20 pb-12 overflow-hidden border-t border-white/10">
       {/* Subtle background ambient glow */}
-      <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-[350px] w-[700px] rounded-full blur-[160px] opacity-15 bg-[#B38A45]" />
+      <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-[350px] w-[700px] rounded-full blur-[160px] opacity-15 bg-[#ff4d17]" />
 
       <div className="relative mx-auto max-w-[1440px] px-5 md:px-10 lg:px-16">
         {/* Top Branding Bar */}

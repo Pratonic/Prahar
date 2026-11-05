@@ -22,11 +22,11 @@ export interface AudioState {
 let globalAudio: HTMLAudioElement | null = null;
 
 const ragaAudioFiles: Record<string, string> = {
-  bhairav: '/audio/bhairav.wav',
-  sarang: '/audio/sarang.wav',
-  yaman: '/audio/yaman.wav',
-  darbari: '/audio/darbari.wav',
-  malhar: '/audio/malhar.wav',
+  bhairav: '/audio/bhairav.mp3',
+  sarang: '/audio/sarang.mp3',
+  yaman: '/audio/yaman.mp3',
+  darbari: '/audio/darbari.mp3',
+  malhar: '/audio/malhar.mp3',
 };
 
 export const useAudioStore = create<AudioState>((set, get) => {

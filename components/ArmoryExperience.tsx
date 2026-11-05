@@ -3,45 +3,38 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionValue,
-} from 'framer-motion';
+import { motion, useSpring, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import {
   Play,
   Pause,
   Clock,
   ShoppingBag,
   Volume2,
-  ChevronDown,
   Sparkles,
   ArrowRight,
   Disc,
   Radio,
   Flame,
+  Check,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  Sun,
+  Moon,
+  ChevronRight,
+  Sliders,
 } from 'lucide-react';
 import { ragas } from '@/data/ragas';
 import { products, formatPrice } from '@/data/products';
 import { useAudioStore } from '@/lib/audio';
 import { useCartStore } from '@/lib/cart';
 
-// Armory Stage Markers
-const stages = [
-  { id: 'identity', code: '01', label: 'IDENTITY', progress: 0.05 },
-  { id: 'chronos', code: '02', label: 'THE LAW OF TIME', progress: 0.28 },
-  { id: 'ragas', code: '03', label: 'FIVE PRAHARS', progress: 0.52 },
-  { id: 'soundlab', code: '04', label: 'SOUNDLAB', progress: 0.76 },
-  { id: 'collection', code: '05', label: 'ACQUISITION', progress: 0.95 },
-];
-
 export default function ArmoryExperience() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [activeRagaIdx, setActiveRagaIdx] = useState(0);
-  const [timeStr, setTimeStr] = useState('05:00');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'edp' | 'attar' | 'candles'>('all');
   const [addedItem, setAddedItem] = useState<string | null>(null);
+  const [currentTimeStr, setCurrentTimeStr] = useState('05:00');
+  const [currentPraharName, setCurrentPraharName] = useState('BHAIRAV');
 
   const activeRaga = ragas[activeRagaIdx];
 
@@ -51,7 +44,11 @@ export default function ArmoryExperience() {
   const playRaga = useAudioStore((s) => s.playRaga);
   const togglePlay = useAudioStore((s) => s.togglePlay);
 
-  // Sync active raga with audio store if user changes track elsewhere
+  // Cart Store
+  const addItem = useCartStore((s) => s.addItem);
+  const toggleCart = useCartStore((s) => s.toggleCart);
+
+  // Sync active raga with audio store
   useEffect(() => {
     const idx = ragas.findIndex((r) => r.id === currentRagaId);
     if (idx !== -1 && idx !== activeRagaIdx) {
@@ -59,138 +56,80 @@ export default function ArmoryExperience() {
     }
   }, [currentRagaId, activeRagaIdx]);
 
-  // Cart Store
-  const addItem = useCartStore((s) => s.addItem);
-  const toggleCart = useCartStore((s) => s.toggleCart);
-
-  // Scroll Progress across 500vh track
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Smooth Springs for Scroll Transforms
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 28,
-    restDelta: 0.001,
-  });
-
-  // Bottle 3D Transform on Scroll:
-  // Stage 1: scale 1.0 (centered)
-  // Stage 2: scale 1.42 (deep macro zoom on glass & amber liquid)
-  // Stage 3: scale 1.08 (framed by 5 Prahars)
-  // Stage 4: scale 1.15, shifted slightly right on desktop
-  // Stage 5: scale 0.92 (pulling back for the full collection)
-  const bottleScale = useTransform(smoothProgress, [0, 0.25, 0.5, 0.75, 1], [1.0, 1.42, 1.08, 1.16, 0.92]);
-  const bottleY = useTransform(smoothProgress, [0, 0.25, 0.5, 0.75, 1], [0, -15, 10, -10, -35]);
-  const bottleX = useTransform(smoothProgress, [0, 0.65, 0.78, 0.88, 1], [0, 0, 130, 110, 0]);
-  const bottleRotateZ = useTransform(smoothProgress, [0, 0.25, 0.5, 0.75, 1], [0, -3.5, 2, -2.5, 0]);
-
-  // Stage Fade Opacities & Y-Translations
-  const stage1Opacity = useTransform(smoothProgress, [0, 0.16, 0.22], [1, 1, 0]);
-  const stage1Y = useTransform(smoothProgress, [0, 0.16, 0.22], [0, 0, -40]);
-
-  const stage2Opacity = useTransform(smoothProgress, [0.22, 0.28, 0.42, 0.47], [0, 1, 1, 0]);
-  const stage2Y = useTransform(smoothProgress, [0.22, 0.28, 0.42, 0.47], [40, 0, 0, -40]);
-
-  const stage3Opacity = useTransform(smoothProgress, [0.46, 0.51, 0.68, 0.73], [0, 1, 1, 0]);
-  const stage3Y = useTransform(smoothProgress, [0.46, 0.51, 0.68, 0.73], [40, 0, 0, -40]);
-
-  const stage4Opacity = useTransform(smoothProgress, [0.72, 0.77, 0.87, 0.91], [0, 1, 1, 0]);
-  const stage4Y = useTransform(smoothProgress, [0.72, 0.77, 0.87, 0.91], [40, 0, 0, -40]);
-
-  const stage5Opacity = useTransform(smoothProgress, [0.89, 0.94, 1], [0, 1, 1]);
-  const stage5Y = useTransform(smoothProgress, [0.89, 0.94, 1], [40, 0, 0]);
-
-  // Active Stage Index for HUD Vertical Bar
-  const [currentStageIdx, setCurrentStageIdx] = useState(0);
-  useEffect(() => {
-    return scrollYProgress.on('change', (val) => {
-      if (val < 0.2) setCurrentStageIdx(0);
-      else if (val < 0.44) setCurrentStageIdx(1);
-      else if (val < 0.69) setCurrentStageIdx(2);
-      else if (val < 0.88) setCurrentStageIdx(3);
-      else setCurrentStageIdx(4);
-    });
-  }, [scrollYProgress]);
-
-  // Live Clock
+  // Real-time clock & automatic prahar detection
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setTimeStr(
-        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+      const h = now.getHours();
+      const m = now.getMinutes();
+      setCurrentTimeStr(
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
       );
+
+      // Determine prahar based on time
+      if (h >= 3 && h < 6) {
+        setCurrentPraharName('BHAIRAV (PRE-DAWN)');
+      } else if (h >= 11 && h < 15) {
+        setCurrentPraharName('SARANG (MIDDAY)');
+      } else if (h >= 18 && h < 21) {
+        setCurrentPraharName('YAMAN (DUSK)');
+      } else if (h >= 22 || h < 3) {
+        setCurrentPraharName('DARBARI (MIDNIGHT)');
+      } else {
+        setCurrentPraharName('MALHAR (RENEWAL)');
+      }
     };
     updateTime();
     const interval = setInterval(updateTime, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  // 3D Interactive Mouse Tilt Physics (For the real bottle image)
+  // 3D Interactive Mouse Tilt Physics for the Perfume Bottle
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const tiltX = useSpring(useTransform(mouseY, [-0.5, 0.5], [12, -12]), { stiffness: 140, damping: 22 });
-  const tiltY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), { stiffness: 140, damping: 22 });
-
-  // Specular sheen position
-  const sheenX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-50, 50]), { stiffness: 100, damping: 25 });
-  const sheenY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-40, 40]), { stiffness: 100, damping: 25 });
+  const tiltX = useSpring(useTransform(mouseY, [-0.5, 0.5], [14, -14]), { stiffness: 150, damping: 20 });
+  const tiltY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-18, 18]), { stiffness: 150, damping: 20 });
+  const sheenX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-45, 45]), { stiffness: 120, damping: 25 });
+  const sheenY = useSpring(useTransform(mouseY, [-0.5, 0.5], [-35, 35]), { stiffness: 120, damping: 25 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    mouseX.set(clientX / innerWidth - 0.5);
-    mouseY.set(clientY / innerHeight - 0.5);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
   };
 
-  const handleRagaSelect = (idx: number) => {
-    setActiveRagaIdx(idx);
-    playRaga(ragas[idx].id);
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
   };
 
-  const handleAddToCart = (productId: string, name: string, price: number, size: string = '50ml') => {
+  const handleAddToCart = (productId: string, name: string, price: number, size: string = '50ml', ragaId: string = activeRaga.id) => {
     addItem({
       productId,
       name,
       price,
       size,
-      ragaId: activeRaga.id,
+      ragaId,
       category: 'perfume',
     });
     setAddedItem(productId);
-    setTimeout(() => setAddedItem(null), 2200);
+    toggleCart();
+    setTimeout(() => setAddedItem(null), 2500);
   };
 
-  const scrollToStage = (progressTarget: number) => {
-    if (!containerRef.current) return;
-    const totalHeight = containerRef.current.scrollHeight - window.innerHeight;
-    window.scrollTo({
-      top: containerRef.current.offsetTop + totalHeight * progressTarget,
-      behavior: 'smooth',
-    });
-  };
-
-  // Color mapping for atmospheric auras
-  const auraColors: Record<string, string> = {
-    bhairav: 'rgba(212, 139, 56, 0.32)', // Golden amber
-    sarang: 'rgba(255, 122, 0, 0.30)',  // Solar citrus orange
-    yaman: 'rgba(224, 109, 83, 0.32)',   // Twilight rose gold
-    darbari: 'rgba(79, 70, 229, 0.30)',  // Midnight royal indigo
-    malhar: 'rgba(13, 148, 136, 0.32)',  // Monsoon petrichor teal
+  const handleRagaChange = (idx: number) => {
+    setActiveRagaIdx(idx);
+    playRaga(ragas[idx].id);
   };
 
   return (
-    <div
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      className="relative bg-[#0B0C10] text-white min-h-[500vh] font-sans selection:bg-[#ff4d17]/40 selection:text-white"
-    >
+    <div className="bg-[#0B0C10] text-white selection:bg-[#ff4d17]/40 selection:text-white font-sans min-h-screen">
       {/* ───────────────────────────────────────────────────────────── */}
-      {/* FIXED PINNED VIEWPORT (Armory.in Pinned Architecture)         */}
+      {/* SECTION 1: HERO — THE FIRST IMPRESSION                        */}
       {/* ───────────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
+      <section className="relative min-h-[92vh] flex flex-col justify-between pt-24 pb-12 px-6 sm:px-10 lg:px-16 overflow-hidden border-b border-white/[0.08]">
         {/* Subtle Armory Dot Grid */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.035]"
@@ -200,160 +139,80 @@ export default function ArmoryExperience() {
           }}
         />
 
-        {/* Dynamic Color Atmosphere Aura (Glows behind the photorealistic bottle) */}
+        {/* Dynamic Ambient Color Glow */}
         <motion.div
           animate={{
-            backgroundColor: auraColors[activeRaga.id] || auraColors.bhairav,
+            backgroundColor: activeRaga.colors.primary,
           }}
-          transition={{ duration: 1.4, ease: 'easeInOut' }}
-          className="pointer-events-none absolute w-[600px] sm:w-[750px] h-[600px] sm:h-[750px] rounded-full blur-[190px]"
+          transition={{ duration: 1.2, ease: 'easeInOut' }}
+          className="pointer-events-none absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[180px] opacity-25"
         />
 
-        {/* Floating Musical Clef Ambient Accent (Subtle, from Deck Slide 1) */}
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04] flex items-center justify-center select-none overflow-hidden">
-          <svg className="w-[1200px] h-[700px] stroke-white fill-none stroke-[0.75]" viewBox="0 0 1000 600">
-            <path d="M 0 300 Q 250 100 500 300 T 1000 300" />
-            <path d="M 0 340 Q 250 140 500 340 T 1000 340" />
-            <path d="M 0 380 Q 250 180 500 380 T 1000 380" />
-            <path d="M 0 420 Q 250 220 500 420 T 1000 420" />
-            <path d="M 0 460 Q 250 260 500 460 T 1000 460" />
-          </svg>
-        </div>
-
-        {/* ── ARMORY HUD: CORNER BRACKETS [ + ] ─────────────────────── */}
-        <div className="pointer-events-none absolute inset-6 sm:inset-10 z-30 flex flex-col justify-between">
+        {/* Armory Corner Brackets */}
+        <div className="pointer-events-none absolute inset-6 sm:inset-10 z-20 flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="font-mono text-xs text-white/35 tracking-widest">[ + ]</span>
-            <span className="font-mono text-xs text-white/35 tracking-widest">[ + ]</span>
+            <span className="font-mono text-xs text-white/30 tracking-widest">[ + ]</span>
+            <span className="font-mono text-xs text-white/30 tracking-widest">[ + ]</span>
           </div>
           <div className="flex justify-between items-end">
-            <span className="font-mono text-xs text-white/35 tracking-widest">[ + ]</span>
-            <span className="font-mono text-xs text-white/35 tracking-widest">[ + ]</span>
+            <span className="font-mono text-xs text-white/30 tracking-widest">[ + ]</span>
+            <span className="font-mono text-xs text-white/30 tracking-widest">[ + ]</span>
           </div>
         </div>
 
-        {/* ── ARMORY HUD: TELEMETRY BAR (Top under Nav) ─────────────── */}
-        <div className="absolute top-[76px] inset-x-0 z-30 px-6 sm:px-12 flex items-center justify-between text-[11px] font-mono tracking-widest text-white/45 border-b border-white/[0.07] pb-3">
+        {/* Armory Top Telemetry Bar */}
+        <div className="relative z-10 mx-auto w-full max-w-[1440px] flex items-center justify-between text-[11px] font-mono tracking-widest text-white/45 border-b border-white/[0.08] pb-3 mb-6">
           <div className="flex items-center gap-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#ff4d17] animate-pulse" />
-            <span className="text-white font-medium">{timeStr}</span>
-            <span className="opacity-40">•</span>
-            <span className="text-[#ff4d17] font-semibold uppercase">{activeRaga.time}</span>
+            <span className="text-white font-semibold">{currentTimeStr}</span>
+            <span className="opacity-30">•</span>
+            <span className="text-[#ff4d17] font-semibold">{currentPraharName}</span>
           </div>
 
           <div className="hidden md:flex items-center gap-6">
             <span>KANNAUJ 27.05°N, 79.91°E</span>
             <span className="opacity-30">•</span>
-            <span className="text-white/80">INDIAN WEATHER PROOF</span>
+            <span>INDIAN HEAT FORMULA (24% OIL)</span>
             <span className="opacity-30">•</span>
-            <span className="text-[#ff4d17]">432Hz HARMONIC</span>
+            <span className="text-[#ff4d17]">432Hz ACOUSTIC MASTER</span>
           </div>
 
           <div className="flex items-center gap-2 text-white/70">
             <Clock className="w-3.5 h-3.5 text-[#ff4d17]" />
-            <span className="uppercase tracking-wider font-semibold">PRAHAR {activeRagaIdx + 1} • {activeRaga.name}</span>
+            <span className="uppercase tracking-wider">PRAHAR प्रहर</span>
           </div>
         </div>
 
-        {/* ── ARMORY HUD: VERTICAL SCROLL TRACKER (Right Side) ──────── */}
-        <div className="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-6">
-          <div className="flex flex-col gap-3 font-mono text-[11px] tracking-widest text-right">
-            {stages.map((stg, i) => {
-              const isActive = i === currentStageIdx;
-              return (
-                <button
-                  key={stg.id}
-                  onClick={() => scrollToStage(stg.progress)}
-                  className={`transition-all text-right flex items-center gap-3 py-0.5 cursor-pointer ${
-                    isActive ? 'text-[#ff4d17] font-bold translate-x-0' : 'text-white/40 hover:text-white/80'
-                  }`}
-                >
-                  <span className="text-[9px] opacity-60">{stg.code}</span>
-                  <span>{stg.label}</span>
-                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#ff4d17]" />}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Vertical Progress Line with Armory Flame Slider */}
-          <div className="w-[2px] h-36 bg-white/10 rounded-full relative overflow-hidden self-end mr-1">
-            <motion.div
-              style={{ scaleY: smoothProgress, transformOrigin: 'top' }}
-              className="w-full h-full bg-[#ff4d17]"
-            />
-          </div>
-        </div>
-
-        {/* ── CENTER: THE REAL PHOTOREALISTIC BOTTLE (With 3D Physics) ── */}
-        <div className="relative z-10 w-full h-full max-w-[540px] max-h-[680px] flex items-center justify-center pointer-events-none px-4">
-          <motion.div
-            style={{
-              scale: bottleScale,
-              y: bottleY,
-              x: bottleX,
-              rotateZ: bottleRotateZ,
-              rotateX: tiltX,
-              rotateY: tiltY,
-              perspective: 1200,
-              transformStyle: 'preserve-3d',
-            }}
-            className="relative w-72 sm:w-88 md:w-[380px] h-[400px] sm:h-[480px] md:h-[530px] flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing"
-          >
-            {/* Dynamic Ground Shadow */}
-            <div className="absolute -bottom-6 w-3/4 h-8 bg-black/80 rounded-full blur-xl scale-y-50 pointer-events-none" />
-
-            {/* The Real Ultra-Clean Transparent Cutout of the PRAHAR Perfume Bottle */}
-            <div className="relative w-full h-full drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)]">
-              <Image
-                src="/images/bottle_hero.png"
-                alt="PRAHAR Luxury Fragrance Bottle"
-                fill
-                sizes="(max-width: 768px) 300px, 450px"
-                className="object-contain pointer-events-none select-none"
-                priority
-              />
-
-              {/* Specular Light Sheen Overlay (Reacts dynamically to mouse tilt) */}
-              <motion.div
-                style={{
-                  x: sheenX,
-                  y: sheenY,
-                }}
-                className="pointer-events-none absolute inset-0 opacity-40 mix-blend-overlay bg-gradient-to-tr from-transparent via-white to-transparent rounded-3xl"
-              />
-            </div>
-          </motion.div>
-        </div>
-
-        {/* ───────────────────────────────────────────────────────────── */}
-        {/* OVERLAY STAGES (Minimalist, Punchy, Editorial Luxury)         */}
-        {/* ───────────────────────────────────────────────────────────── */}
-
-        {/* ── STAGE 1: THE IDENTITY ─────────────────────────────────── */}
-        <motion.div
-          style={{ opacity: stage1Opacity, y: stage1Y }}
-          className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end pb-24 sm:pb-28 px-6 sm:px-14 lg:px-20"
-        >
-          <div className="max-w-2xl pointer-events-auto">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="px-3 py-1 rounded-full text-[10px] font-mono tracking-[0.25em] uppercase bg-white/5 border border-white/15 text-[#ff4d17]">
+        {/* Main Hero Split Grid */}
+        <div className="relative z-10 mx-auto w-full max-w-[1440px] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center flex-grow py-4">
+          {/* Left Column: Bold Editorial Copy & Direct Acquisition CTAs */}
+          <div className="lg:col-span-7 flex flex-col justify-center">
+            <div className="flex items-center gap-2.5 mb-4">
+              <span className="px-3 py-1 rounded-full text-[10px] font-mono tracking-[0.25em] uppercase bg-[#ff4d17]/15 border border-[#ff4d17]/30 text-[#ff4d17] font-semibold">
                 PRAHAR प्रहर × A.R. RAHMAN
               </span>
               <span className="text-white/40 text-[11px] font-mono hidden sm:inline">
-                {"//"} 05:00 · PRE-DAWN
+                {"//"} LUXURY PARFUM & ACOUSTIC RAGAS
               </span>
             </div>
 
             <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl tracking-tight leading-[0.95] text-white">
-              The fragrance you can hear.
+              The fragrance <br />
+              <span className="italic text-[#ff4d17]">you can hear.</span>
             </h1>
 
-            <p className="font-serif italic text-2xl sm:text-3xl text-[#ff4d17] mt-3">
+            <p className="font-serif italic text-2xl sm:text-3xl text-white/80 mt-4 leading-snug">
               "Every hour has a story. Every raga has a scent."
             </p>
 
+            <p className="mt-4 text-base sm:text-lg text-white/60 font-sans max-w-xl leading-relaxed">
+              Co-founded with composer A.R. Rahman following <em>Le Musk</em>. 
+              Handcrafted in Kannauj with natural botanical attars, matched to the five sacred movements of the Indian day.
+            </p>
+
+            {/* Direct High-Conversion CTAs */}
             <div className="mt-8 flex flex-wrap items-center gap-4">
+              {/* Primary: Audio Preview */}
               <button
                 onClick={() => playRaga(activeRaga.id)}
                 className="px-8 py-4 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-[0.2em] font-bold flex items-center gap-3 shadow-[0_0_35px_rgba(255,77,23,0.45)] transition-all hover:scale-105 active:scale-95 cursor-pointer"
@@ -362,297 +221,687 @@ export default function ArmoryExperience() {
                 <span>{isPlaying ? 'Pause Audio' : `Hear Raga ${activeRaga.name}`}</span>
               </button>
 
+              {/* Secondary: Buy 50ml */}
               <button
-                onClick={() => handleAddToCart(activeRaga.id + '-edp', activeRaga.name + ' 50ml EDP', 2799, '50ml')}
-                className="px-8 py-4 rounded-full border border-white/20 hover:border-[#ff4d17] bg-[#14161F]/60 backdrop-blur-md text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-[0.2em] font-semibold transition-all flex items-center gap-2 cursor-pointer"
+                onClick={() => handleAddToCart(`${activeRaga.id}-edp`, `${activeRaga.name} 50ml Haute Parfum`, 2799, '50ml')}
+                className="px-7 py-4 rounded-full border border-white/20 hover:border-[#ff4d17] bg-[#14161F]/80 backdrop-blur-md text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-[0.2em] font-semibold transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <ShoppingBag className="w-4 h-4 text-[#ff4d17]" />
+                <span>Order 50ml — ₹2,799</span>
+              </button>
+
+              {/* Bestseller Discovery Set Pill */}
+              <button
+                onClick={() => handleAddToCart('discovery-set-5', 'PRAHAR Discovery Set (5×2ml)', 999, '5×2ml')}
+                className="px-6 py-4 rounded-full border border-white/10 hover:border-white/30 bg-white/5 text-white/70 hover:text-white font-mono text-xs uppercase tracking-[0.15em] transition-all cursor-pointer"
+              >
+                Discovery Set — ₹999
+              </button>
+            </div>
+
+            {/* Guarantees Strip */}
+            <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-wrap items-center gap-6 text-xs font-mono text-white/50">
+              <span className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-[#ff4d17]" /> Free Shipping in India
+              </span>
+              <span className="flex items-center gap-2">
+                <Disc className="w-4 h-4 text-[#ff4d17]" /> Authenticated 432Hz NFC Bottle
+              </span>
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#ff4d17]" /> 2 Samples With Every Order
+              </span>
+            </div>
+          </div>
+
+          {/* Right Column: The 3D Interactive Photorealistic Bottle */}
+          <div
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[460px] sm:min-h-[520px] cursor-grab active:cursor-grabbing"
+          >
+            {/* Interactive 3D Perspective Stage */}
+            <motion.div
+              style={{
+                rotateX: tiltX,
+                rotateY: tiltY,
+                perspective: 1200,
+                transformStyle: 'preserve-3d',
+              }}
+              animate={{
+                y: [0, -10, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="relative w-64 sm:w-80 md:w-92 h-[380px] sm:h-[450px] md:h-[490px] flex items-center justify-center drop-shadow-[0_30px_60px_rgba(0,0,0,0.95)]"
+            >
+              {/* Dynamic Ground Shadow */}
+              <div className="absolute -bottom-8 w-4/5 h-10 bg-black/85 rounded-full blur-2xl scale-y-40 pointer-events-none" />
+
+              {/* The Genuine High-Resolution Transparent Cutout */}
+              <div className="relative w-full h-full">
+                <Image
+                  src="/images/bottle_hero.png"
+                  alt="PRAHAR Luxury Amber Perfume Bottle"
+                  fill
+                  sizes="(max-width: 768px) 320px, 450px"
+                  className="object-contain pointer-events-none select-none"
+                  priority
+                />
+
+                {/* Moving Specular Sheen on Glass */}
+                <motion.div
+                  style={{
+                    x: sheenX,
+                    y: sheenY,
+                  }}
+                  className="pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay bg-gradient-to-tr from-transparent via-white to-transparent rounded-3xl"
+                />
+              </div>
+            </motion.div>
+
+            {/* Quick Interactive Tooltip */}
+            <div className="mt-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-white/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff4d17]" />
+              <span>Interactive 3D Glass // Move Cursor to Tilt</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Scroll Cue */}
+        <div className="relative z-10 mx-auto w-full max-w-[1440px] pt-4 flex items-center justify-between text-[11px] font-mono text-white/40 tracking-wider">
+          <div className="flex items-center gap-2">
+            <span className="text-[#ff4d17]">NOW PLAYING:</span>
+            <span className="text-white uppercase font-bold">RAGA {activeRaga.name}</span>
+            <span>({activeRaga.time})</span>
+          </div>
+          <a
+            href="#ragas-matrix"
+            className="flex items-center gap-1.5 text-white/60 hover:text-[#ff4d17] transition-colors"
+          >
+            <span>EXPLORE THE 5 PRAHARS</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#ff4d17]" />
+          </a>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* SECTION 2: LIVE PRAHAR CIRCADIAN CLOCK                        */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <section className="py-12 px-6 sm:px-10 lg:px-16 bg-[#0E1017] border-b border-white/[0.08]">
+        <div className="mx-auto max-w-[1440px] flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#ff4d17]/10 border border-[#ff4d17]/30 flex items-center justify-center shrink-0">
+              <Clock className="w-6 h-6 text-[#ff4d17]" />
+            </div>
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4d17] block">
+                CIRCADIAN CHRONO-BIOLOGY
+              </span>
+              <h3 className="font-serif text-2xl text-white">
+                Your Prahar for this hour: <span className="italic text-[#ff4d17]">{currentPraharName}</span>
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => playRaga(activeRaga.id)}
+              className="px-6 py-3 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-2 cursor-pointer shadow"
+            >
+              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+              <span>Stream {activeRaga.name} Audio</span>
+            </button>
+
+            <button
+              onClick={() => handleAddToCart(`${activeRaga.id}-edp`, `${activeRaga.name} 50ml EDP`, 2799, '50ml')}
+              className="px-6 py-3 rounded-full border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
+            >
+              + Quick Add ₹2,799
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* SECTION 3: THE SIGNATURE FIVE RAGAS (Core Explorer)          */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <section id="ragas-matrix" className="py-24 px-6 sm:px-10 lg:px-16 border-b border-white/[0.08] relative">
+        <div className="mx-auto max-w-[1440px]">
+          {/* Section Heading */}
+          <div className="max-w-3xl mb-14">
+            <span className="text-xs font-mono tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
+              01 // THE SACRED FIVE
+            </span>
+            <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-tight leading-tight">
+              Five hours. Five ragas. <br />
+              <span className="italic text-[#ff4d17]">Five scents you can hear.</span>
+            </h2>
+            <p className="mt-3 text-base sm:text-lg text-white/60 font-sans leading-relaxed">
+              Click any prahar below to stream its authentic Indian classical raga and explore its botanical accord formulated specifically for Indian climate.
+            </p>
+          </div>
+
+          {/* Horizontal Raga Matrix Tabs */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-2 bg-[#14161F] rounded-2xl border border-white/10 mb-8">
+            {ragas.map((r, i) => {
+              const isSelected = i === activeRagaIdx;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => handleRagaChange(i)}
+                  className={`p-4 rounded-xl text-left transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#ff4d17] text-white shadow-[0_0_30px_rgba(255,77,23,0.45)] scale-102 font-semibold'
+                      : 'bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] text-white/70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[10px] font-mono uppercase">
+                    <span>{r.time}</span>
+                    {isSelected && <span className="w-2 h-2 rounded-full bg-white animate-pulse" />}
+                  </div>
+                  <div className="font-serif text-2xl font-bold mt-1.5">
+                    {r.name}
+                  </div>
+                  <div className="text-xs font-serif opacity-80">
+                    {r.nameDevanagari}
+                  </div>
+                  <div className={`text-[11px] mt-2 font-sans ${isSelected ? 'text-white/95 font-medium' : 'text-white/50'}`}>
+                    {r.mood}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Raga Deep Dive Panel */}
+          <div className="p-8 sm:p-12 rounded-3xl bg-[#14161F]/90 backdrop-blur-2xl border border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center shadow-2xl">
+            {/* Left: Notes & Identity */}
+            <div className="lg:col-span-7">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="px-3 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase bg-white/5 text-[#ff4d17] border border-white/10">
+                  PRAHAR {activeRagaIdx + 1} • {activeRaga.time}
+                </span>
+                <span className="text-xs font-mono text-white/50">
+                  MOOD: {activeRaga.mood.toUpperCase()}
+                </span>
+              </div>
+
+              <h3 className="font-serif text-4xl sm:text-5xl text-white">
+                Raga {activeRaga.name}{' '}
+                <span className="text-2xl text-[#ff4d17] font-normal">({activeRaga.nameDevanagari})</span>
+              </h3>
+
+              <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed font-sans">
+                {activeRaga.description}
+              </p>
+
+              {/* Fragrance Notes Breakdown */}
+              <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-3 gap-4">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4d17] block">
+                    TOP NOTES
+                  </span>
+                  <span className="font-serif text-base text-white mt-1 block">
+                    {activeRaga.fragranceNotes.top.join(', ')}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4d17] block">
+                    HEART NOTES
+                  </span>
+                  <span className="font-serif text-base text-white mt-1 block">
+                    {activeRaga.fragranceNotes.heart.join(', ')}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4d17] block">
+                    BASE NOTES
+                  </span>
+                  <span className="font-serif text-base text-white mt-1 block">
+                    {activeRaga.fragranceNotes.base.join(', ')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Audio Track Player for this Raga */}
+              <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() => playRaga(activeRaga.id)}
+                  className="px-6 py-3 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-2 cursor-pointer shadow"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+                  <span>{isPlaying ? 'Pause Raga Music' : `Play Raga ${activeRaga.name}`}</span>
+                </button>
+
+                <button
+                  onClick={() => handleAddToCart(`${activeRaga.id}-edp`, `${activeRaga.name} 50ml EDP`, 2799, '50ml')}
+                  className="px-6 py-3 rounded-full border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-semibold transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Order 50ml Eau de Parfum — ₹2,799</span>
+                </button>
+
+                <button
+                  onClick={() => handleAddToCart(`${activeRaga.id}-attar`, `${activeRaga.name} 10ml Pure Attar`, 1499, '10ml')}
+                  className="px-5 py-3 rounded-full border border-white/10 hover:border-white/30 text-white/70 hover:text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer"
+                >
+                  Order 10ml Attar — ₹1,499
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Raga Bottle Visual & Aura */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[380px]">
+              <div
+                className="absolute inset-0 rounded-full blur-[140px] opacity-35"
+                style={{ backgroundColor: activeRaga.colors.primary }}
+              />
+
+              <div className="relative w-56 sm:w-68 h-[340px] sm:h-[390px] drop-shadow-[0_20px_45px_rgba(0,0,0,0.9)]">
+                <Image
+                  src="/images/bottle_hero.png"
+                  alt={`${activeRaga.name} Bottle`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+
+              <div className="mt-3 text-center">
+                <span className="font-serif text-lg text-white font-semibold block">
+                  {activeRaga.name} • 50ml Haute Parfum
+                </span>
+                <span className="text-xs font-mono text-[#ff4d17]">
+                  24% Oil Concentration // Indian Climate Proof
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* SECTION 4: THE BESTSELLER DISCOVERY SET (₹999)               */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0E1017] border-b border-white/[0.08]">
+        <div className="mx-auto max-w-[1440px] grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7">
+            <span className="text-xs font-mono tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
+              CAN’T DECIDE ON AN HOUR?
+            </span>
+            <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-tight leading-tight">
+              The PRAHAR Discovery Set. <br />
+              <span className="italic text-[#ff4d17]">All 5 sacred hours in one box.</span>
+            </h2>
+
+            <p className="mt-4 text-base sm:text-lg text-white/70 font-sans leading-relaxed max-w-xl">
+              Experience the full circadian journey. Five 2ml luxury travel atomizers (Bhairav, Sarang, Yaman, Darbari, Malhar) 
+              plus exclusive streaming access to all five Rahman classical recordings.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-6 text-sm font-mono text-white/80">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#ff4d17]" />
+                <span>5 × 2ml Luxury Atomizers</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#ff4d17]" />
+                <span>₹999 Voucher for 50ml Bottle</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#ff4d17]" />
+                <span>Free Express Shipping</span>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-baseline gap-4">
+              <span className="font-serif text-4xl font-bold text-white">₹999</span>
+              <span className="text-sm font-mono text-white/40 line-through">₹1,499</span>
+              <span className="px-2.5 py-1 rounded-md bg-[#ff4d17]/20 border border-[#ff4d17]/40 text-[#ff4d17] text-xs font-mono font-bold">
+                SAVE ₹500
+              </span>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <button
+                onClick={() => handleAddToCart('discovery-set-5', 'PRAHAR Discovery Set (5×2ml)', 999, '5×2ml')}
+                className="px-8 py-4 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-[0.2em] font-bold transition-all shadow-[0_0_25px_rgba(255,77,23,0.45)] flex items-center gap-3 cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>{addedItem ? 'Added to Bag ✓' : 'Order 50ml — ₹2,799'}</span>
+                <span>Add Discovery Set to Bag — ₹999</span>
               </button>
             </div>
-
-            <div className="mt-8 flex items-center gap-2 text-[11px] font-mono text-white/40 tracking-wider">
-              <ChevronDown className="w-4 h-4 animate-bounce text-[#ff4d17]" />
-              <span>SCROLL TO EXPLORE THE HOURS</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ── STAGE 2: THE QUESTION (Macro Zoom) ─────────────────────── */}
-        <motion.div
-          style={{ opacity: stage2Opacity, y: stage2Y }}
-          className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-center px-6 sm:px-14 lg:px-20"
-        >
-          <div className="max-w-xl pointer-events-auto p-6 sm:p-10 rounded-3xl bg-[#14161F]/85 backdrop-blur-2xl border border-white/10 shadow-2xl">
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
-              01 // THE LAW OF TIME
-            </span>
-
-            <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-tight leading-tight">
-              What if you could wear this?
-            </h2>
-
-            <p className="mt-4 text-base sm:text-lg text-white/80 font-sans leading-relaxed">
-              For centuries, Indian classical musicians sang each raga only at its own hour. 
-              A morning raga sung at dusk disturbed the equilibrium of the soul.
-            </p>
-
-            <p className="mt-3 text-lg sm:text-xl text-[#ff4d17] font-serif italic">
-              PRAHAR gives every hour its own scent and its own sound.
-            </p>
-
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-white/40">
-              <span>8 PRAHARS • 24 HOURS</span>
-              <span>KANNNAUJ NATURAL EXTRACTION</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ── STAGE 3: THE FIVE PRAHARS (Interactive Sound & Light Shift) ── */}
-        <motion.div
-          style={{ opacity: stage3Opacity, y: stage3Y }}
-          className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between py-24 sm:py-26 px-6 sm:px-14 lg:px-20"
-        >
-          <div className="text-center max-w-xl mx-auto pointer-events-auto">
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#ff4d17] block mb-1">
-              02 // THE FIVE SACRED MOVEMENTS
-            </span>
-            <h2 className="font-serif text-3xl sm:text-5xl text-white tracking-tight">
-              Five hours. Five scents you can hear.
-            </h2>
           </div>
 
-          {/* Interactive Raga Matrix Pills */}
-          <div className="pointer-events-auto max-w-4xl mx-auto w-full">
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 bg-[#14161F]/90 backdrop-blur-xl p-3 rounded-2xl border border-white/15 shadow-2xl">
-              {ragas.map((r, i) => {
-                const isSelected = i === activeRagaIdx;
-                return (
-                  <button
-                    key={r.id}
-                    onClick={() => handleRagaSelect(i)}
-                    className={`p-3.5 rounded-xl text-left transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#ff4d17] text-white shadow-[0_0_25px_rgba(255,77,23,0.4)] scale-102 font-semibold'
-                        : 'bg-white/[0.04] border border-white/5 hover:bg-white/10 text-white/70'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-[10px] font-mono uppercase">
-                      <span>{r.time}</span>
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                    </div>
-                    <div className="font-serif text-lg font-bold mt-1 truncate">
-                      {r.name}
-                    </div>
-                    <div className={`text-[10px] truncate font-sans ${isSelected ? 'text-white/90' : 'text-white/50'}`}>
-                      {r.mood}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Active Selected Bar with Live Sound & 1-Click Buy */}
-            <div className="mt-3 p-4 rounded-2xl bg-[#14161F]/90 backdrop-blur-md border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono">
-              <div className="flex items-center gap-3">
-                <span className="text-[#ff4d17] uppercase tracking-wider font-bold shrink-0">
-                  {activeRaga.name} NOTES:
-                </span>
-                <span className="text-white/80 truncate">
-                  {activeRaga.character}
-                </span>
+          <div className="lg:col-span-5 flex justify-center">
+            <div className="relative w-full max-w-md h-80 sm:h-96 rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#14161F] flex items-center justify-center p-6">
+              <Image
+                src="/images/ritual_box.jpg"
+                alt="PRAHAR Discovery Set Packaging"
+                fill
+                className="object-cover opacity-85"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+              <div className="absolute bottom-6 inset-x-6 flex items-center justify-between text-xs font-mono">
+                <span className="text-white font-bold tracking-wider">PRAHAR 5×2ML SET</span>
+                <span className="text-[#ff4d17] font-semibold">₹999 INCL. TAXES</span>
               </div>
-              <button
-                onClick={() => handleAddToCart(activeRaga.id + '-edp', activeRaga.name + ' 50ml EDP', 2799, '50ml')}
-                className="px-5 py-2.5 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white uppercase tracking-wider font-bold transition-all shadow flex items-center gap-2 shrink-0 cursor-pointer"
-              >
-                <ShoppingBag className="w-3.5 h-3.5" />
-                <span>{addedItem ? 'Added ✓' : 'Add 50ml • ₹2,799'}</span>
-              </button>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </section>
 
-        {/* ── STAGE 4: DIGITAL SOUNDLAB (A.R. Rahman Collaboration) ─── */}
-        <motion.div
-          style={{ opacity: stage4Opacity, y: stage4Y }}
-          className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-center px-6 sm:px-14 lg:px-20"
-        >
-          <div className="max-w-xl pointer-events-auto p-6 sm:p-10 rounded-3xl bg-[#14161F]/90 backdrop-blur-2xl border border-white/15 shadow-2xl">
-            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
-              03 // A.R. RAHMAN COLLABORATION
-            </span>
-
-            <h3 className="font-serif text-3xl sm:text-5xl text-white tracking-tight leading-tight">
-              Sound and scent share the exact same language.
-            </h3>
-
-            <p className="font-serif italic text-xl sm:text-2xl text-[#ff4d17] mt-2">
-              "Notes. Chords. Accords. Resonance."
-            </p>
-
-            <p className="text-sm text-white/70 font-sans mt-4 leading-relaxed">
-              Every physical PRAHAR bottle embeds a digital gateway. 
-              Scan the authenticated QR on the bottle base to stream its exclusive raga performance mastered in 432Hz.
-            </p>
-
-            {/* Live 24-Bar Waveform Equalizer */}
-            <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between gap-4">
-              <div className="flex items-end gap-1.5 h-8">
-                {[10, 22, 30, 14, 28, 18, 26, 12, 24, 16, 30, 14, 20, 28, 12, 24].map((h, idx) => (
-                  <motion.span
-                    key={idx}
-                    animate={
-                      isPlaying
-                        ? { height: ['4px', `${h}px`, '4px'] }
-                        : { height: '4px' }
-                    }
-                    transition={
-                      isPlaying
-                        ? { repeat: Infinity, duration: 0.45 + (idx % 4) * 0.12, ease: 'easeInOut' }
-                        : {}
-                    }
-                    className="w-1 bg-[#ff4d17] rounded-full"
-                  />
-                ))}
-              </div>
-
-              <button
-                onClick={() => {
-                  if (isPlaying) togglePlay();
-                  else playRaga(activeRaga.id);
-                }}
-                className="px-6 py-2.5 rounded-full bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-wider font-bold transition-all shadow-[0_0_20px_rgba(255,77,23,0.4)] cursor-pointer"
-              >
-                {isPlaying ? 'Pause Audio' : `Stream Raga ${activeRaga.name}`}
-              </button>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ── STAGE 5: THE COLLECTION / ACQUISITION ──────────────────── */}
-        <motion.div
-          style={{ opacity: stage5Opacity, y: stage5Y }}
-          className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end pb-12 sm:pb-16 px-6 sm:px-14 lg:px-20"
-        >
-          <div className="max-w-5xl mx-auto w-full pointer-events-auto">
-            <div className="text-center mb-6">
-              <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#ff4d17] block mb-1">
-                04 // CHOOSE YOUR RITUAL
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* SECTION 5: BEYOND THE BOTTLE — COMPLETE CATALOGUE (Slide 12)  */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 px-6 sm:px-10 lg:px-16 border-b border-white/[0.08]">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <span className="text-xs font-mono tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
+                02 // BEYOND THE BOTTLE
               </span>
-              <h2 className="font-serif text-3xl sm:text-5xl text-white tracking-tight">
-                Beyond the bottle.
+              <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-tight leading-tight">
+                Wear a prahar. Gift a prahar. <br />
+                <span className="italic text-[#ff4d17]">Live the ritual.</span>
               </h2>
-              <p className="font-serif italic text-lg text-[#ff4d17] mt-1">
-                Wear a prahar. Gift a prahar. Live the ritual.
-              </p>
             </div>
 
-            {/* 4 Minimalist Dark Luxury Buy Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Card 1: 50ml EDP */}
-              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-lg">
+            {/* Category Filter Pills */}
+            <div className="flex items-center gap-2 p-1 bg-[#14161F] rounded-xl border border-white/10 text-xs font-mono">
+              {(['all', 'edp', 'attar', 'candles'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-2 rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                    activeCategory === cat
+                      ? 'bg-[#ff4d17] text-white font-bold shadow'
+                      : 'text-white/50 hover:text-white'
+                  }`}
+                >
+                  {cat === 'all' ? 'All Products' : cat.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Product Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* 1. 50ml EDP */}
+            {(activeCategory === 'all' || activeCategory === 'edp') && (
+              <div className="p-6 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-xl group">
                 <div>
+                  <div className="relative w-full h-56 rounded-2xl overflow-hidden bg-black/40 mb-5 flex items-center justify-center p-4">
+                    <Image
+                      src="/images/bottle_hero.png"
+                      alt={`${activeRaga.name} EDP`}
+                      fill
+                      className="object-contain group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4d17] block">
                     HAUTE PARFUM • 50ML
                   </span>
-                  <h4 className="font-serif text-xl font-bold text-white mt-1">
+                  <h4 className="font-serif text-2xl font-bold text-white mt-1">
                     {activeRaga.name} EDP
                   </h4>
-                  <span className="font-serif text-2xl font-bold text-white block mt-2">
+                  <p className="text-xs text-white/50 mt-1 font-sans">
+                    {activeRaga.character}
+                  </p>
+                  <span className="font-serif text-2xl font-bold text-white block mt-3">
                     ₹2,799
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddToCart(activeRaga.id + '-edp', activeRaga.name + ' 50ml EDP', 2799, '50ml')}
-                  className="mt-5 w-full py-2.5 rounded-xl bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer shadow"
+                  onClick={() => handleAddToCart(`${activeRaga.id}-edp`, `${activeRaga.name} 50ml EDP`, 2799, '50ml')}
+                  className="mt-6 w-full py-3.5 rounded-xl bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-wider font-bold transition-all shadow cursor-pointer"
                 >
-                  {addedItem === activeRaga.id + '-edp' ? 'Added ✓' : '+ Add to Bag'}
+                  {addedItem === `${activeRaga.id}-edp` ? 'Added to Bag ✓' : '+ Add to Bag'}
                 </button>
               </div>
+            )}
 
-              {/* Card 2: 10ml Attar */}
-              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-lg">
+            {/* 2. 10ml Pure Attar */}
+            {(activeCategory === 'all' || activeCategory === 'attar') && (
+              <div className="p-6 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-xl group">
                 <div>
+                  <div className="relative w-full h-56 rounded-2xl overflow-hidden bg-black/40 mb-5 flex items-center justify-center p-4">
+                    <Image
+                      src="/images/bottle_hero.png"
+                      alt={`${activeRaga.name} Attar`}
+                      fill
+                      className="object-contain scale-75 group-hover:scale-80 transition-transform duration-500"
+                    />
+                  </div>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">
-                    PURE ATTAR • 10ML
+                    PURE ATTAR • 10ML ROLL-ON
                   </span>
-                  <h4 className="font-serif text-xl font-bold text-white mt-1">
-                    {activeRaga.name} Roll-on
+                  <h4 className="font-serif text-2xl font-bold text-white mt-1">
+                    {activeRaga.name} Attar
                   </h4>
-                  <span className="font-serif text-2xl font-bold text-white block mt-2">
+                  <p className="text-xs text-white/50 mt-1 font-sans">
+                    Non-alcoholic pure perfume oil
+                  </p>
+                  <span className="font-serif text-2xl font-bold text-white block mt-3">
                     ₹1,499
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddToCart(activeRaga.id + '-attar', activeRaga.name + ' 10ml Attar', 1499, '10ml')}
-                  className="mt-5 w-full py-2.5 rounded-xl border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
+                  onClick={() => handleAddToCart(`${activeRaga.id}-attar`, `${activeRaga.name} 10ml Attar`, 1499, '10ml')}
+                  className="mt-6 w-full py-3.5 rounded-xl border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
                 >
-                  {addedItem === activeRaga.id + '-attar' ? 'Added ✓' : '+ Add to Bag'}
+                  {addedItem === `${activeRaga.id}-attar` ? 'Added to Bag ✓' : '+ Add to Bag'}
                 </button>
               </div>
+            )}
 
-              {/* Card 3: Discovery Set */}
-              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-lg">
+            {/* 3. Discovery Set 5×2ml */}
+            {(activeCategory === 'all' || activeCategory === 'edp') && (
+              <div className="p-6 rounded-3xl bg-[#14161F] border border-[#ff4d17]/40 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-xl group relative">
+                <span className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-[#ff4d17] text-[10px] font-mono font-bold uppercase tracking-wider text-white">
+                  BEST VALUE
+                </span>
                 <div>
+                  <div className="relative w-full h-56 rounded-2xl overflow-hidden bg-black/40 mb-5 flex items-center justify-center">
+                    <Image
+                      src="/images/ritual_box.jpg"
+                      alt="Discovery Set"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4d17] block">
-                    BESTSELLER • 5×2ML
+                    DISCOVERY SET • 5×2ML
                   </span>
-                  <h4 className="font-serif text-xl font-bold text-white mt-1">
-                    Discovery Set
+                  <h4 className="font-serif text-2xl font-bold text-white mt-1">
+                    All 5 Sacred Hours
                   </h4>
-                  <span className="font-serif text-2xl font-bold text-white block mt-2">
+                  <p className="text-xs text-white/50 mt-1 font-sans">
+                    Includes ₹999 voucher for full bottle
+                  </p>
+                  <span className="font-serif text-2xl font-bold text-white block mt-3">
                     ₹999
                   </span>
                 </div>
                 <button
                   onClick={() => handleAddToCart('discovery-set-5', 'PRAHAR Discovery Set (5×2ml)', 999, '5×2ml')}
-                  className="mt-5 w-full py-2.5 rounded-xl border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
+                  className="mt-6 w-full py-3.5 rounded-xl bg-[#ff4d17] hover:bg-[#e03d07] text-white font-mono text-xs uppercase tracking-wider font-bold transition-all shadow cursor-pointer"
                 >
-                  {addedItem === 'discovery-set-5' ? 'Added ✓' : '+ Add to Bag'}
+                  {addedItem === 'discovery-set-5' ? 'Added to Bag ✓' : '+ Add to Bag'}
                 </button>
               </div>
+            )}
 
-              {/* Card 4: Raga Candle */}
-              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-lg">
+            {/* 4. Diwali Raga Candle */}
+            {(activeCategory === 'all' || activeCategory === 'candles') && (
+              <div className="p-6 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between hover:border-[#ff4d17] transition-all shadow-xl group">
                 <div>
+                  <div className="relative w-full h-56 rounded-2xl overflow-hidden bg-black/40 mb-5 flex items-center justify-center">
+                    <Image
+                      src="/images/candles_box.jpg"
+                      alt="Diwali Raga Candle"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-white/50 block">
-                    SOY BEESWAX • 200G
+                    SOY & BEESWAX • 200G
                   </span>
-                  <h4 className="font-serif text-xl font-bold text-white mt-1">
+                  <h4 className="font-serif text-2xl font-bold text-white mt-1">
                     {activeRaga.name} Candle
                   </h4>
-                  <span className="font-serif text-2xl font-bold text-white block mt-2">
+                  <p className="text-xs text-white/50 mt-1 font-sans">
+                    Infused with natural raga essences
+                  </p>
+                  <span className="font-serif text-2xl font-bold text-white block mt-3">
                     ₹1,299
                   </span>
                 </div>
                 <button
-                  onClick={() => handleAddToCart(activeRaga.id + '-candle', activeRaga.name + ' Candle 200g', 1299, '200g')}
-                  className="mt-5 w-full py-2.5 rounded-xl border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
+                  onClick={() => handleAddToCart(`${activeRaga.id}-candle`, `${activeRaga.name} Candle 200g`, 1299, '200g')}
+                  className="mt-6 w-full py-3.5 rounded-xl border border-white/20 hover:border-[#ff4d17] text-white hover:text-[#ff4d17] font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
                 >
-                  {addedItem === activeRaga.id + '-candle' ? 'Added ✓' : '+ Add to Bag'}
+                  {addedItem === `${activeRaga.id}-candle` ? 'Added to Bag ✓' : '+ Add to Bag'}
                 </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* SECTION 6: FROM RAGA TO RITUAL — 4-STEP JOURNEY (Slide 11)   */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 px-6 sm:px-10 lg:px-16 bg-[#0E1017] border-b border-white/[0.08]">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="max-w-2xl mb-16">
+            <span className="text-xs font-mono tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
+              03 // HOW IT WORKS
+            </span>
+            <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-tight leading-tight">
+              From Raga to Ritual.
+            </h2>
+            <p className="mt-3 text-base sm:text-lg text-white/60 font-sans">
+              A seamless daily practice uniting Indian classical sound and natural fragrance.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+            {/* Step 1 */}
+            <div className="p-8 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono text-[#ff4d17] block mb-4">01 // HEAR</span>
+                <Disc className="w-8 h-8 text-[#ff4d17] mb-4" />
+                <h4 className="font-serif text-2xl font-bold text-white">Listen</h4>
+                <p className="mt-3 text-sm text-white/60 font-sans leading-relaxed">
+                  Start with the raga designated for your specific hour. Scan the QR beneath the bottle to stream in 432Hz.
+                </p>
               </div>
             </div>
 
-            {/* Minimal Armory Footer Navigation */}
-            <div className="mt-8 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between text-xs font-mono text-white/40">
-              <div className="flex items-center gap-6">
-                <Link href="/our-story" className="hover:text-[#ff4d17] transition-colors">
-                  [ 01 OUR STORY ]
-                </Link>
-                <Link href="/fragrances" className="hover:text-[#ff4d17] transition-colors">
-                  [ 02 THE FIVE RAGAS ]
-                </Link>
-                <Link href="/experience" className="hover:text-[#ff4d17] transition-colors">
-                  [ 03 DIGITAL SOUNDLAB ]
-                </Link>
+            {/* Step 2 */}
+            <div className="p-8 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono text-[#ff4d17] block mb-4">02 // MATCH</span>
+                <Radio className="w-8 h-8 text-[#ff4d17] mb-4" />
+                <h4 className="font-serif text-2xl font-bold text-white">Match</h4>
+                <p className="mt-3 text-sm text-white/60 font-sans leading-relaxed">
+                  Select the PRAHAR fragrance formulated for that mood and hour, balancing mind and atmosphere.
+                </p>
               </div>
-              <span>PRAHAR प्रहर © 2026 • ALL RIGHTS RESERVED</span>
+            </div>
+
+            {/* Step 3 */}
+            <div className="p-8 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono text-[#ff4d17] block mb-4">03 // WEAR</span>
+                <Flame className="w-8 h-8 text-[#ff4d17] mb-4" />
+                <h4 className="font-serif text-2xl font-bold text-white">Wear</h4>
+                <p className="mt-3 text-sm text-white/60 font-sans leading-relaxed">
+                  Apply to pulse points. Handcrafted Kannauj hydro-distillation guarantees a warm 10-hour lingering trail.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="p-8 rounded-3xl bg-[#14161F] border border-white/10 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-mono text-[#ff4d17] block mb-4">04 // LIVE</span>
+                <Sparkles className="w-8 h-8 text-[#ff4d17] mb-4" />
+                <h4 className="font-serif text-2xl font-bold text-white">Live</h4>
+                <p className="mt-3 text-sm text-white/60 font-sans leading-relaxed">
+                  Move through the day in emotional harmony, re-aligning your circadian rhythm with every hour.
+                </p>
+              </div>
             </div>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </section>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* SECTION 7: WHY PRAHAR WINS — THE DIFFERENCE (Slide 3 & 5)     */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 px-6 sm:px-10 lg:px-16 border-b border-white/[0.08]">
+        <div className="mx-auto max-w-[1440px] grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 relative h-96 sm:h-[480px] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <Image
+              src="/images/five_bottles_stone.jpg"
+              alt="PRAHAR Lineup on Ancient Carved Stone"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute bottom-6 inset-x-6 text-xs font-mono text-white/80">
+              <span className="text-[#ff4d17] font-bold block mb-1">KANNAUJ DISTILLATION</span>
+              <span>Layered natural extracts • 0% synthetic fillers</span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7">
+            <span className="text-xs font-mono tracking-[0.25em] uppercase text-[#ff4d17] block mb-2">
+              04 // THE SCIENCE & CRAFT
+            </span>
+            <h2 className="font-serif text-4xl sm:text-6xl text-white tracking-tight leading-tight">
+              Why Indians wear PRAHAR.
+            </h2>
+
+            <div className="mt-8 space-y-6">
+              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex items-start gap-4">
+                <span className="text-xl font-serif text-[#ff4d17] font-bold">01</span>
+                <div>
+                  <h4 className="font-serif text-xl font-bold text-white">Engineered for Indian Climate</h4>
+                  <p className="text-sm text-white/60 font-sans mt-1">
+                    Standard European fragrances evaporate within 3 hours in tropical heat. 
+                    PRAHAR uses high-density 24% perfume oil concentrations anchored by Kannauj Mitti attar and aged sandalwood.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex items-start gap-4">
+                <span className="text-xl font-serif text-[#ff4d17] font-bold">02</span>
+                <div>
+                  <h4 className="font-serif text-xl font-bold text-white">Exclusive A.R. Rahman Compositions</h4>
+                  <p className="text-sm text-white/60 font-sans mt-1">
+                    Music and perfumery are twin arts. Every bottle connects via NFC to master studio tracks recorded in 432Hz harmonic tuning.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#14161F] border border-white/10 flex items-start gap-4">
+                <span className="text-xl font-serif text-[#ff4d17] font-bold">03</span>
+                <div>
+                  <h4 className="font-serif text-xl font-bold text-white">Direct Kannauj Artisan Sourcing</h4>
+                  <p className="text-sm text-white/60 font-sans mt-1">
+                    We partner with multi-generational deg-bhapka distillers in Kannauj, supporting traditional Indian perfumers with sustainable fair compensation.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

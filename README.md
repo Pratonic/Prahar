@@ -42,30 +42,35 @@ For centuries, Indian classical musicians performed each raga only at its design
 
 ## Technology Stack
 
-- **Framework:** Next.js 15 (App Router with SSG pre-rendering)
+- **Framework:** Next.js 15 (App Router with SSG pre-rendering across 46 static pages)
+- **3D Graphics & WebGL:** Three.js with physical glass transmission, refraction (`ior: 1.52`), dynamic liquid color morphing, gold cap faceting, and 360° mouse/drag rotation
 - **Language:** TypeScript 5
 - **Styling:** Tailwind CSS 3.4
-- **Motion & Interactions:** Framer Motion 11 & GSAP 3
+- **Motion & Interactions:** Framer Motion 11 (`useScroll`, `useTransform` scroll-zooming) & GSAP 3
 - **Icons:** Lucide React
-- **Audio Synthesis:** Web Audio API (Tanpura drone harmonics per raga) & HTML5 Audio
-- **State Management:** Zustand 5 (Persistent Shopping Bag Store)
+- **Sound Architecture:** Classical Tanpura drone & Alaap acoustic wave synthesis (44.1kHz 16-bit PCM for all 5 ragas: Bhairav, Sarang, Yaman, Darbari, Malhar)
+- **State Management:** Zustand 5 (Global Audio Player Singleton & Persistent Shopping Bag Store)
 - **Deployment:** Zero-config Vercel deployment ready
 
 ---
 
 ## Architectural & Feature Highlights
 
-### 1. Cinematic Hero Experience (`/`)
-- Dynamic bottle illumination with atmospheric smoke simulation
-- Real-time digital chronometer displaying the visitor's current hour
-- Floating musical notation (♪ ♫) with organic physics
-- Interactive ambient soundwave ribbon
-- Parallax depth and staggered typography
+### 1. Interactive 3D Perfume Vessel & Scroll Zoom (`Hero3DExperience.tsx` & `Bottle3D.tsx`)
+- **Three.js WebGL Stage:** Real-time physical glass bottle (`MeshPhysicalMaterial`) with light transmission, roughness: 0.05, clearcoat: 1.0, and gold-foiled PRAHAR label.
+- **Dynamic Scroll-Zoom:** As the user scrolls, the bottle smoothly scales and zooms in (`useTransform`), creating a cinematic narrative progression.
+- **Liquid Color Morphing:** Selecting any of the 5 ragas smoothly shifts the bottle's internal perfume liquid color and lighting to match the mood (e.g. Dawn Gold for Bhairav, Sunlit Amber for Sarang, Royal Violet/Oud for Darbari).
+- **360° Drag & Gyro Tilt:** Visitors can click and drag to rotate the perfume flask in full 3D space, with floating golden dust particles reacting dynamically.
 
-### 2. The Five Ragās Explorer (`/fragrances`)
+### 2. Classical Raga Music Engine & Navbar Visualizer
+- **Audible Indian Classical Ragas:** Full 44.1kHz audio files (`/audio/*.wav`) containing authentic meditative Tanpura drones, harmonic resonance, and melodic Alaap phrases for each raga.
+- **Top Navigation Audio Pill (`Navbar.tsx`):** Ambient gold-bordered audio toggle in the top-right navbar with a 4-bar equalizer that animates during playback, showing the active raga.
+- **Persistent Global Audio Bar (`GlobalAudioBar.tsx`):** Fixed bottom player with 16 animated waveform bars, seekable scrub line, volume slider, track progression, and 5-raga quick selector.
+
+### 3. The Five Ragās Explorer (`/fragrances`)
 - Timeline navigation across all 5 divisions of the day
 - Olfactory architecture breakdown (Top, Heart, Base notes)
-- Responsive luxury bottle silhouettes with raga-specific hues
+- High-definition extracted imagery from the master design deck
 - One-click cart addition and direct audio portal links
 
 ### 3. Digital Music Experience (`/experience`)

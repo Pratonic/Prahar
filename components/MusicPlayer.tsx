@@ -249,10 +249,10 @@ export default function MusicPlayer() {
             </div>
           </div>
 
-          {/* Right Column: Real Slide 9 Photo with iPhone and Bottle */}
-          <div className="lg:col-span-5 relative min-h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30">
+          {/* Right Column: Pure Photo with iPhone and Bottle */}
+          <div className="lg:col-span-5 relative min-h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30 bg-[#17131D]">
             <Image
-              src="/images/extracted/img_p9_1.jpeg"
+              src="/images/clean/iphone_raga_ritual_pure.jpg"
               alt="PRAHAR iPhone Music Experience with Bottle"
               fill
               className="object-cover"

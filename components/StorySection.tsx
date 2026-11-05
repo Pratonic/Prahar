@@ -71,15 +71,15 @@ export default function StorySection() {
             transition={{ duration: 0.9 }}
             className="lg:col-span-6 relative"
           >
-            <div className="relative h-[520px] sm:h-[620px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30">
+            <div className="relative h-[520px] sm:h-[620px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30 bg-[#17131D]">
               <Image
-                src="/images/extracted/img_p2_1.jpeg"
-                alt="PRAHAR perfume vessel with curling musical smoke"
+                src="/images/clean/story_bottle_pure.jpg"
+                alt="PRAHAR pure perfume vessel on stone with curling aromatic smoke"
                 fill
                 className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <div className="absolute bottom-8 left-8 right-8 text-white">
                 <span className="text-[11px] font-mono tracking-widest uppercase text-[#D6B77C] block mb-1">
                   PRAHAR प्रहर • CHRONO-OLFACTION
@@ -94,7 +94,7 @@ export default function StorySection() {
 
         {/* ── CHAPTER 2: THE MAESTRO × LE MUSK ──────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center mb-36">
-          {/* Visual on the Left */}
+          {/* Visual on the Left: Bespoke Interactive Venn Diagram & Craft Stage (No Cut-Off Slide) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -102,21 +102,87 @@ export default function StorySection() {
             transition={{ duration: 0.9 }}
             className="lg:col-span-6 order-2 lg:order-1 relative"
           >
-            <div className="relative h-[500px] sm:h-[580px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30">
-              <Image
-                src="/images/extracted/img_p4_1.jpeg"
-                alt="A.R. Rahman collaboration vessel with jasmine and saffron"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-[#17131D]/80 backdrop-blur-md border border-white/10 text-white">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B77C]">
-                  MULTI-SENSORY CINEMA & PERFUMERY
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30 bg-[#17131D] text-white p-6 sm:p-8 flex flex-col justify-between">
+              {/* Top Collaboration Badge */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#D6B77C]" />
+                  <span className="text-[11px] font-mono uppercase tracking-widest text-[#D6B77C]">
+                    THE MAESTRO'S CONVERGENCE
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">
+                  Cannes XR • Le Musk
                 </span>
-                <p className="font-serif text-sm mt-1 text-white/90">
-                  Following his Cannes XR multi-sensory film <em>Le Musk</em>, A.R. Rahman brings exclusive raga compositions to PRAHAR.
-                </p>
+              </div>
+
+              {/* Native Interactive Venn Diagram: Rahman × Olfaction */}
+              <div className="relative py-4 px-2 my-auto">
+                <div className="grid grid-cols-2 gap-3 relative z-10">
+                  {/* Left Circle: Rahman's Realm */}
+                  <div className="p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-[#D6B77C]/30 text-left flex flex-col justify-between min-h-[170px]">
+                    <div>
+                      <span className="text-[9px] font-mono uppercase tracking-widest text-[#D6B77C] block mb-1">
+                        SONIC VISION
+                      </span>
+                      <h4 className="font-serif text-lg font-bold text-white">
+                        A.R. Rahman
+                      </h4>
+                    </div>
+                    <ul className="text-[11px] text-white/70 space-y-1 font-sans">
+                      <li>• 2 Oscars & 2 Grammys</li>
+                      <li>• Microtonal classical ragas</li>
+                      <li>• <em>Le Musk</em> multi-sensory cinema</li>
+                    </ul>
+                  </div>
+
+                  {/* Right Circle: India's Olfactory Heritage */}
+                  <div className="p-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-[#B96A2D]/30 text-left flex flex-col justify-between min-h-[170px]">
+                    <div>
+                      <span className="text-[9px] font-mono uppercase tracking-widest text-[#B96A2D] block mb-1">
+                        PERFUMERY HERITAGE
+                      </span>
+                      <h4 className="font-serif text-lg font-bold text-white">
+                        Kannauj Craft
+                      </h4>
+                    </div>
+                    <ul className="text-[11px] text-white/70 space-y-1 font-sans">
+                      <li>• 400-year deg-bhapka still</li>
+                      <li>• Mysore sandalwood & mitti</li>
+                      <li>• Heat-proof alcohol-free attars</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Golden Center Intersect Pill */}
+                <div className="relative -mt-4 mx-auto max-w-[280px] p-3 rounded-xl bg-gradient-to-r from-[#B38A45]/90 via-[#D6B77C]/90 to-[#B38A45]/90 text-[#17131D] text-center shadow-lg border border-white/20">
+                  <span className="block text-[10px] font-mono uppercase tracking-widest font-bold">
+                    THE PRAHAR SYNTHESIS
+                  </span>
+                  <p className="font-serif italic text-xs font-semibold mt-0.5">
+                    "Where musical notes become olfactory accords."
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Photo & Authenticity Verification */}
+              <div className="mt-6 pt-4 border-t border-white/10 flex items-center gap-4">
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-[#D6B77C]/30 shadow-md">
+                  <Image
+                    src="/images/clean/rahman_le_musk_craft_only.jpg"
+                    alt="Artisanal agarwood, white flowers, and amber perfume oil"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-[11px] font-medium text-white/90 truncate">
+                    Artisanal botanical extraction with raw oud & Kannauj flowers
+                  </span>
+                  <span className="block text-[10px] font-mono text-[#D6B77C] mt-0.5">
+                    Formula designed to endure 40°C+ Indian heat
+                  </span>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -208,13 +274,64 @@ export default function StorySection() {
             transition={{ duration: 0.9 }}
             className="lg:col-span-6 relative"
           >
-            <div className="relative h-[480px] sm:h-[560px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30">
-              <Image
-                src="/images/extracted/img_p5_1.jpeg"
-                alt="PRAHAR perfume bottle with pink lotus and stone archway"
-                fill
-                className="object-cover"
-              />
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30 bg-[#17131D] text-white p-6 sm:p-8">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B77C] block mb-1">
+                    ARTISANAL PROVENANCE
+                  </span>
+                  <h4 className="font-serif text-xl font-bold text-white">
+                    Kannauj Deg-Bhapka Distillation
+                  </h4>
+                </div>
+                <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">
+                  400-Yr Heritage
+                </span>
+              </div>
+
+              {/* Four Sacred Botanical Pillars */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
+                  <span className="text-xs font-serif font-bold text-[#D6B77C] block">
+                    Mysore Sandalwood
+                  </span>
+                  <span className="text-[11px] text-white/60 font-sans mt-0.5 block">
+                    Aged Heartwood distilled over low woodfires in pure copper degs.
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
+                  <span className="text-xs font-serif font-bold text-[#D6B77C] block">
+                    Mitti Attar (Petrichor)
+                  </span>
+                  <span className="text-[11px] text-white/60 font-sans mt-0.5 block">
+                    Sun-baked Gangetic clay distilled to bottle the first monsoon rain.
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
+                  <span className="text-xs font-serif font-bold text-[#D6B77C] block">
+                    Odisha Wild Kewra
+                  </span>
+                  <span className="text-[11px] text-white/60 font-sans mt-0.5 block">
+                    Wild coastal pandanus blossoms harvested at dawn in Ganjam.
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10">
+                  <span className="text-xs font-serif font-bold text-[#D6B77C] block">
+                    Midnight Rajnigandha
+                  </span>
+                  <span className="text-[11px] text-white/60 font-sans mt-0.5 block">
+                    Heady night-blooming tuberose captured at peak nocturnal sillage.
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-white/50 font-mono">
+                <span>Natural Botanicals • 0% Synthetic Fixatives</span>
+                <span className="text-[#D6B77C]">Kannauj, Uttar Pradesh</span>
+              </div>
             </div>
           </motion.div>
         </div>

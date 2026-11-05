@@ -116,10 +116,10 @@ export default function CampaignSection() {
             </div>
           </div>
 
-          {/* Right: Real High-Res Photo from Slide 10 */}
-          <div className="lg:col-span-5 relative h-[480px] sm:h-[560px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30">
+          {/* Right: Pure High-Res Photo of Smartphone and Candle */}
+          <div className="lg:col-span-5 relative h-[480px] sm:h-[560px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30 bg-[#17131D]">
             <Image
-              src="/images/extracted/img_p10_1.jpeg"
+              src="/images/clean/campaign_phone_candle_pure.jpg"
               alt="Listen to the Scent Campaign with Phone and Candles"
               fill
               className="object-cover"

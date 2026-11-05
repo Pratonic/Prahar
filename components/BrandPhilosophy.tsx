@@ -167,9 +167,9 @@ export default function BrandPhilosophy() {
               </div>
             </div>
 
-            <div className="lg:col-span-6 relative h-[480px] sm:h-[580px] rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+            <div className="lg:col-span-6 relative h-[480px] sm:h-[580px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-[#17131D]">
               <Image
-                src="/images/extracted/img_p16_1.jpeg"
+                src="/images/clean/varanasi_ghats_pure.jpg"
                 alt="Varanasi Ghats at Dusk with Temple Diya Lights"
                 fill
                 className="object-cover"

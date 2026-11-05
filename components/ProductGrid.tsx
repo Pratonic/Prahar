@@ -56,14 +56,55 @@ export default function ProductGrid({ showTitle = true }: ProductGridProps) {
           </div>
         </div>
 
-        {/* Full Collection Banner Image from Slide 12 */}
-        <div className="relative w-full h-[320px] sm:h-[480px] lg:h-[540px] rounded-3xl overflow-hidden shadow-2xl border border-[#B38A45]/30 mb-16">
-          <Image
-            src="/images/extracted/img_p12_1.jpeg"
-            alt="PRAHAR Full Collection Lineup of Bottles and Candles"
-            fill
-            className="object-cover"
-          />
+        {/* Collection Formats Showcase Bar (Native Luxury Cards, No Cropped Slide) */}
+        <div className="rounded-3xl bg-[#EADBC5]/40 border border-[#B38A45]/25 p-6 sm:p-8 mb-16 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center">
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#F5EBDD] border border-[#B38A45]/15 shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] font-mono tracking-widest uppercase text-[#B96A2D] block mb-1">
+              HAUTE PARFUM (50ML)
+            </span>
+            <span className="font-serif text-2xl sm:text-3xl font-bold text-[#24160F] block my-1">
+              ₹2,799
+            </span>
+            <span className="text-xs text-[#24160F]/60 font-sans block">
+              Pure glass flask with magnetic crystal cap
+            </span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#F5EBDD] border border-[#B38A45]/15 shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] font-mono tracking-widest uppercase text-[#B96A2D] block mb-1">
+              ATTAR ROLL-ON (10ML)
+            </span>
+            <span className="font-serif text-2xl sm:text-3xl font-bold text-[#24160F] block my-1">
+              ₹1,499
+            </span>
+            <span className="text-xs text-[#24160F]/60 font-sans block">
+              Pocket pure essential oil with cooling rollerball
+            </span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#F5EBDD] border border-[#B38A45]/15 shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] font-mono tracking-widest uppercase text-[#B96A2D] block mb-1">
+              DISCOVERY SET (5×2ML)
+            </span>
+            <span className="font-serif text-2xl sm:text-3xl font-bold text-[#24160F] block my-1">
+              ₹999
+            </span>
+            <span className="text-xs text-[#24160F]/60 font-sans block">
+              All 5 sacred hours, voucher redeemable on 50ml
+            </span>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#F5EBDD] border border-[#B38A45]/15 shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] font-mono tracking-widest uppercase text-[#B96A2D] block mb-1">
+              RAGA SOY CANDLE
+            </span>
+            <span className="font-serif text-2xl sm:text-3xl font-bold text-[#24160F] block my-1">
+              ₹1,299
+            </span>
+            <span className="text-xs text-[#24160F]/60 font-sans block">
+              Hand-poured beeswax with crackling wood wick
+            </span>
+          </div>
         </div>
 
         {/* The 5 Occasions & Fragrance Formats */}

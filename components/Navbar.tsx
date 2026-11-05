@@ -58,7 +58,7 @@ export default function Navbar({ transparent = true }: NavbarProps) {
       <motion.header
         initial={false}
         animate={{
-          backgroundColor: showSolid ? 'rgba(245, 235, 221, 0.95)' : 'rgba(0, 0, 0, 0)',
+          backgroundColor: showSolid ? 'rgba(7, 6, 10, 0.95)' : 'rgba(0, 0, 0, 0)',
           backdropFilter: showSolid ? 'blur(12px)' : 'blur(0px)',
         }}
         transition={{ duration: 0.4, ease: 'easeInOut' }}
@@ -68,12 +68,10 @@ export default function Navbar({ transparent = true }: NavbarProps) {
           {/* ── Logo ─────────────────────────────────────────────── */}
           <Link
             href="/"
-            className={`font-serif text-xl tracking-wider transition-colors duration-400 md:text-2xl ${
-              showSolid ? 'text-[#24160F]' : 'text-white'
-            }`}
+            className="font-serif text-xl tracking-wider transition-colors duration-400 md:text-2xl text-white"
           >
             PRAHAR{' '}
-            <span className="text-base opacity-70 md:text-lg">प्रहर</span>
+            <span className="text-base text-[#D6B77C] opacity-80 md:text-lg">प्रहर</span>
           </Link>
 
           {/* ── Desktop Nav Links ─────────────────────────────────── */}
@@ -82,19 +80,11 @@ export default function Navbar({ transparent = true }: NavbarProps) {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`group relative font-sans text-[13px] uppercase tracking-[0.18em] transition-colors duration-400 ${
-                    showSolid
-                      ? 'text-[#24160F]/80 hover:text-[#24160F]'
-                      : 'text-white/80 hover:text-white'
-                  }`}
+                  className="group relative font-sans text-[13px] uppercase tracking-[0.18em] transition-colors duration-400 text-white/70 hover:text-white"
                 >
                   {link.label}
                   {/* hover underline */}
-                  <span
-                    className={`absolute -bottom-1 left-0 h-px w-0 transition-all duration-300 group-hover:w-full ${
-                      showSolid ? 'bg-[#B38A45]' : 'bg-[#D6B77C]'
-                    }`}
-                  />
+                  <span className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-300 group-hover:w-full bg-[#D6B77C]" />
                 </Link>
               </li>
             ))}
@@ -114,21 +104,19 @@ export default function Navbar({ transparent = true }: NavbarProps) {
               aria-label={isAudioPlaying ? 'Pause Raga Soundtrack' : 'Play Raga Soundtrack'}
               className={`group flex items-center gap-2 rounded-full px-3 py-1.5 transition-all text-xs font-mono uppercase tracking-wider ${
                 isAudioPlaying
-                  ? 'border border-[#B38A45] bg-[#B38A45]/20 text-[#B96A2D] shadow-xs'
-                  : showSolid
-                  ? 'border border-[#24160F]/20 text-[#24160F]/70 hover:border-[#B38A45] hover:text-[#B96A2D]'
-                  : 'border border-white/25 text-white/80 hover:border-[#D6B77C] hover:text-[#D6B77C]'
+                  ? 'border border-[#D6B77C] bg-[#D6B77C]/15 text-[#D6B77C] shadow-xs'
+                  : 'border border-white/20 text-white/75 hover:border-[#D6B77C] hover:text-[#D6B77C]'
               }`}
             >
               {isAudioPlaying ? (
                 <div className="flex items-end gap-[2px] h-3 w-3 pb-0.5">
-                  <span className="w-[2px] bg-[#B38A45] h-full animate-pulse" />
-                  <span className="w-[2px] bg-[#B38A45] h-2/3 animate-pulse delay-75" />
-                  <span className="w-[2px] bg-[#B38A45] h-4/5 animate-pulse delay-150" />
-                  <span className="w-[2px] bg-[#B38A45] h-1/2 animate-pulse delay-200" />
+                  <span className="w-[2px] bg-[#D6B77C] h-full animate-pulse" />
+                  <span className="w-[2px] bg-[#D6B77C] h-2/3 animate-pulse delay-75" />
+                  <span className="w-[2px] bg-[#D6B77C] h-4/5 animate-pulse delay-150" />
+                  <span className="w-[2px] bg-[#D6B77C] h-1/2 animate-pulse delay-200" />
                 </div>
               ) : (
-                <Volume2 className="h-3.5 w-3.5 text-[#B38A45]" />
+                <Volume2 className="h-3.5 w-3.5 text-[#D6B77C]" />
               )}
               <span className="hidden sm:inline text-[11px] font-medium tracking-widest">
                 {isAudioPlaying ? `${activeRaga.name} • SOUND` : 'RAGA SOUND'}
@@ -137,22 +125,14 @@ export default function Navbar({ transparent = true }: NavbarProps) {
 
             <button
               aria-label="Search"
-              className={`hidden transition-colors duration-400 lg:block ${
-                showSolid
-                  ? 'text-[#24160F]/70 hover:text-[#24160F]'
-                  : 'text-white/70 hover:text-white'
-              }`}
+              className="hidden transition-colors duration-400 lg:block text-white/70 hover:text-white"
             >
               <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </button>
 
             <button
               aria-label="Account"
-              className={`hidden transition-colors duration-400 lg:block ${
-                showSolid
-                  ? 'text-[#24160F]/70 hover:text-[#24160F]'
-                  : 'text-white/70 hover:text-white'
-              }`}
+              className="hidden transition-colors duration-400 lg:block text-white/70 hover:text-white"
             >
               <User className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </button>
@@ -161,11 +141,7 @@ export default function Navbar({ transparent = true }: NavbarProps) {
             <button
               aria-label="Shopping bag"
               onClick={toggleCart}
-              className={`relative transition-colors duration-400 ${
-                showSolid
-                  ? 'text-[#24160F]/70 hover:text-[#24160F]'
-                  : 'text-white/70 hover:text-white'
-              }`}
+              className="relative transition-colors duration-400 text-white/70 hover:text-white"
             >
               <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.5} />
               <AnimatePresence>
@@ -188,11 +164,7 @@ export default function Navbar({ transparent = true }: NavbarProps) {
             <button
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               onClick={() => setMobileOpen((v) => !v)}
-              className={`lg:hidden transition-colors duration-400 ${
-                showSolid
-                  ? 'text-[#24160F]/80 hover:text-[#24160F]'
-                  : 'text-white/80 hover:text-white'
-              }`}
+              className="lg:hidden transition-colors duration-400 text-white/80 hover:text-white"
             >
               {mobileOpen ? (
                 <X className="h-6 w-6" strokeWidth={1.5} />
